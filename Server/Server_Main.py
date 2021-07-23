@@ -13,3 +13,4 @@ while True:
     if data.decode() == 'exit':
         break
 
+print("Testing")
