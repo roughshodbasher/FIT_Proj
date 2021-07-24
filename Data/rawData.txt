@@ -1,0 +1,48 @@
+Ford	Ranger	4x4	195	-	234
+Toyota	Corolla	81	-	159
+Toyota	Hilux	4x4	194	-	277
+Toyota	RAV4	107	-	166
+Hyundai	i30	119	-	186
+Mazda	CX-5	158	-	175
+Mitsubishi	Triton	4x4	208	-	225
+Kia	Cerato	158	-	174
+Nissan	X-Trail	139	-	192
+Mazda	3	144	-	154
+Mazda	CX-3	125	-	160
+Hyundai	Tucson	168	-	185
+Mitsubishi	ASX	176	-	186
+Toyota	Prado	208	-	266
+Honda	CR-V	160	-	174
+Volkswagen	Golf	128	-	167
+Holden	Colorado	4x4	210	-	230
+Toyota	Camry	96	-	202
+Mitsubishi	Outlander	43	-	166
+Toyota	Yaris	137	-	147
+Hyundai	Kona	0	-	169
+Toyota	Prado	208	–	266
+Holden	Colorado	4x4	210	–	230
+Mazda	CX-3	125	–	160
+Volkswagen	Golf	128	–	167
+Mitsubishi	Outlander	43	–	166
+Honda	CR-V	160	–	174
+Toyota	Landcruiser	250	–	309
+Toyota	RAV4	107	–	166
+Ford	Ranger	4x4	195	–	234
+Toyota	Hilux	4x4	194	–	277
+Toyota	Corolla	81	–	159
+Hyundai	i30	119	–	186
+Mazda	CX-5	158	–	175
+Kia	Cerato	158	–	174
+Mitsubishi	Triton	4x4	208	–	225
+Nissan	X-Trail	139	–	192
+Mitsubishi	ASX	176	–	186
+Toyota	Camry	96	–	202
+Mazda	3	144	–	154
+Hyundai	Tucson	168	–	185
+Toyota	Hilux	4x4	188	–	277
+Mazda	CX-5	158	–	191
+Subaru	Forester	152	–	215
+Mazda	3	127	–	154
+Hyundai	Kona	0	–	169
+Toyota	RAV4	107	–	172
+Subaru	Forester	152	–	197
