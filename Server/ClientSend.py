@@ -2,22 +2,29 @@ import socket               # Import socket module
 import time
 import json
 
-def sendMessage(info=[]):
+ip = 'localhost'
+port = 1024
+
+def sendMessage(info={}):
     data = json.dumps(info)
     s = socket.socket()
-    ip = 'localhost'
-    port = 1024
     dataSize = 1024
     s.connect((ip, port))
     s.sendall(bytes(data, encoding='utf-8'))
     d = s.recv(dataSize)
+    print(d)
     s.close()
 
 
+def killServer():
+    data = {"requestType" : "exit"}
+    sendMessage(data)
 
-currentLocation = "32-38 Exhibition Walk, Clayton VIC 3800"
-destination = "20 Research Way, Clayton VIC 3800"
+currentLocation = "Disneyland"
+destination = "Universal Studios Hollywood"
 vehicle = ("Toyota, Yarris, 2013")
 
-sendMessage([currentLocation,destination,vehicle])
-sendMessage('exit')
+data = {"requestType": "directions","start": currentLocation, "end" : destination, "vehicle" : vehicle}
+sendMessage(data)
+killServer()
+
