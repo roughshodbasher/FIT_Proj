@@ -17,6 +17,7 @@ def getDirectionsDemo():
     estimatedEmissions = emissions*estimatedDistance
     return (t,estimatedEmissions)
 
+
 def getDirections(data):
     return
 

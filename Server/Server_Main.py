@@ -1,6 +1,7 @@
 import socket  # Import socket module
 import json
 import directions
+import threading
 
 
 
@@ -26,6 +27,10 @@ if __name__ == "__main__":
         if data['requestType'] == "exit":
             break
         elif data['requestType'] == "directions":
+            #thread
             toSend = bytes(json.dumps(directions.getDirectionsDemo()),encoding='utf-8')
             c.sendall(toSend)
+        elif data['requestType'] == 'information':
+            #get things from the db
+            continue
         c.close()  # Close the connection
