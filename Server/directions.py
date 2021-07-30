@@ -42,22 +42,15 @@ def getDirections(data):
         url_data = json.loads(url.read().decode())
     print(url_data)
 
-def polylineToLinearCoods(polys,start=[-37.914580917633366, 145.1349687098531]):
+def polylineToLinearCoords(polys):
     coords = []
     for poly in polys:
         coords.append(decodePolyline(poly))
-
     relCoords = []
-    origin = None
     for c in coords:
-        relCoords.append(deltaCoord(c,origin))
-        origin = relCoords[-1][-1]
-    flatCoords = []
-    for co in relCoords:
-        for c in co:
-            if not (c in flatCoords):
-                flatCoords.append([c[0]+start[0],c[1]+start[1]])
-    return flatCoords
+        d_coord = deltaCoord(c)
+        relCoords.append(d_coord)
+    return relCoords
 
 
 def decodePolyline(poly='',precision=5):
@@ -114,9 +107,8 @@ def decodePolyline(poly='',precision=5):
 
     return coordinates
 
-def deltaCoord(coords,zero=None):
-    if not zero:
-        zero = coords[0]
+def deltaCoord(coords):
+    zero = coords[0]
     relativeCoords = []
     for c in coords:
         # print(c,zero)
@@ -140,12 +132,13 @@ def onRoute(coords,pos,tolerance=10):
 
     # checking distance between nodes
     for i,coord in enumerate(coords):
+        #print(coord,pos)
         if math.sqrt((coord[0]-pos[0])**2+(coord[1]-pos[1])**2) <= tolerance:
-            print("here")
             return True
-        print(math.sqrt((coord[0]-pos[0])**2+(coord[1]-pos[1])**2)/tolerance)
+        #print(math.sqrt((coord[0]-pos[0])**2+(coord[1]-pos[1])**2)/tolerance)
     for i in range(len(coords)-1):
         #calculating distance between location and the line of each leg
+        print(vectorDist(pos,coords[i],coords[i+1]),coords[i],pos)
         if vectorDist(pos,coords[i],coords[i+1]) <= tolerance:
             print(vectorDist(pos,coords[i],coords[i+1]),tolerance)
             return True
@@ -155,7 +148,7 @@ def onRoute(coords,pos,tolerance=10):
 if __name__ == "__main__":
     """test data"""
     onRouteLoc1 = [33.8161014800008, -117.9225146125875]
-    onRouteLoc2 = [33.815593242933474, -117.92358940803874]
+    onRouteLoc2 = [33.82157343203593, -117.92277292780344]
     offRouteLoc = [33.81809687566821, -117.91943153015087]
 
 
@@ -165,9 +158,33 @@ if __name__ == "__main__":
     #
     # NEED TO FIX REL COORDINATES
     #
-    coords = polylineToLinearCoods(d[2],d[1][0])
-    print(d[1][0])
+    size = 1
+    coords = polylineToLinearCoords(d[2][:size])
+
+    print(len(d[1]),len(d[2]),len(coords))
+
+    positions = d[1][:size+1]
+    for i,coor in enumerate(coords):
+        for c in coor:
+            c[0] += positions[i][0]
+            c[1] += positions[i][1]
+        print(npNorm(np.array(coor[-1])-np.array(positions[i+1]))/0.000009009)
+        #correcting coordinates
+        # point 1 (p1) = origin
+        # point 2 (p2) = calculated end
+        # point 3 (p3) = actual end
+        # vector1 (v1) = p1 -> p2 (p2-p1)
+        # vector2 (v2) = p1 -> p3 (p3-p1)
+        p1 = np.array(coor[0])
+        p2 = np.array(coor[-1])
+        p3 = np.array(positions[i+1])
+        v1 = p2-p1
+        v2 = p3-p1
+        print(v1,v2)
+
+
+
     # print(onRoute(coords,onRouteLoc1))
-    print(onRoute(coords,onRouteLoc2))
+    # print(onRoute(coords,onRouteLoc2))
     # print(onRoute(coords,offRouteLoc))
     #print(vectorDist([5,1],[0,1]))
