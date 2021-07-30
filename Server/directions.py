@@ -132,15 +132,15 @@ def onRoute(coords,pos,tolerance=10):
 
     # checking distance between nodes
     for i,coord in enumerate(coords):
-        #print(coord,pos)
+        print(coord,pos, math.sqrt((coord[0]-pos[0])**2+(coord[1]-pos[1])**2)/tolerance)
         if math.sqrt((coord[0]-pos[0])**2+(coord[1]-pos[1])**2) <= tolerance:
             return True
         #print(math.sqrt((coord[0]-pos[0])**2+(coord[1]-pos[1])**2)/tolerance)
     for i in range(len(coords)-1):
         #calculating distance between location and the line of each leg
-        print(vectorDist(pos,coords[i],coords[i+1]),coords[i],pos)
+        #print(vectorDist(pos,coords[i],coords[i+1]),coords[i],pos)
         if vectorDist(pos,coords[i],coords[i+1]) <= tolerance:
-            print(vectorDist(pos,coords[i],coords[i+1]),tolerance)
+            print(pos,coords[i],coords[i+1],vectorDist(pos,coords[i],coords[i+1])/tolerance,tolerance)
             return True
     return False
 
@@ -158,17 +158,20 @@ if __name__ == "__main__":
     #
     # NEED TO FIX REL COORDINATES
     #
-    size = 1
+    size = 5
     coords = polylineToLinearCoords(d[2][:size])
 
     print(len(d[1]),len(d[2]),len(coords))
 
     positions = d[1][:size+1]
+    for p in positions:
+        print(p)
+    correctedCoords = []
     for i,coor in enumerate(coords):
         for c in coor:
             c[0] += positions[i][0]
             c[1] += positions[i][1]
-        print(npNorm(np.array(coor[-1])-np.array(positions[i+1]))/0.000009009)
+        #print(npNorm(np.array(coor[-1])-np.array(positions[i+1]))/0.000009009)
         #correcting coordinates
         # point 1 (p1) = origin
         # point 2 (p2) = calculated end
@@ -180,11 +183,51 @@ if __name__ == "__main__":
         p3 = np.array(positions[i+1])
         v1 = p2-p1
         v2 = p3-p1
-        print(v1,v2)
+        #print(v1,v2)
+        #change to be numpy based
+        absV1 = math.sqrt(v1[0]**2+v1[1]**2)
+        absV2 = math.sqrt(v2[0]**2+v2[1]**2)
+        #print(absV1,absV2)
+        angle = np.arccos(np.dot(v1,v2)/(absV1*absV2))
+        #print(angle)
+        #print(absV1**2)
+        normV1 = npNorm(v1)
+        correctedV2 = v2*absV1/absV2
+        #print(p1+correctedV2-p3)
+        if (npNorm(p1+correctedV2-p3)/0.000009009) > 1:
+            print(i)
+        p2 = p1+correctedV2
+        #need to scale all other points in coor
+        corrected = []
+        for i,c in enumerate(coor):
+            if i != len(coor)-1:
+                c = np.array(c)
+                c = c*absV1/absV2
+            corrected.append(c)
+        correctedCoords.append(corrected)
+##    for arr in correctedCoords:
+##       print(arr)
+
+    #flattening correctedCoords
+    flatCoords = []
+    for arr in correctedCoords:
+        for c in arr:
+            flag = True
+            for elem in flatCoords:
+                flag2 = True
+                for i in range(len(c)):
+                    if c[i] != elem[i]:
+                        flag2 = False
+                        break
+                if flag2:
+                    flag = False
+                    break
+            if flag:
+                flatCoords.append(c)
+    
 
 
-
-    # print(onRoute(coords,onRouteLoc1))
-    # print(onRoute(coords,onRouteLoc2))
-    # print(onRoute(coords,offRouteLoc))
+    #print(onRoute(flatCoords,onRouteLoc1))
+   # print(onRoute(flatCoords,onRouteLoc2))
+    print(onRoute(flatCoords,offRouteLoc))
     #print(vectorDist([5,1],[0,1]))
