@@ -27,7 +27,7 @@ class Path:
     def polylineToLinearCoords(self,polys):
         coords = []
         for poly in polys:
-            coords.append(decodePolyline(poly))
+            coords.append(self.decodePolyline(poly))
         flatCoords = []
         for subcord in coords:
             for c in subcord:
