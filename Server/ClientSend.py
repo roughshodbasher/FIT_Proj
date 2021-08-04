@@ -2,8 +2,8 @@ import socket               # Import socket module
 import time
 import json
 
-ip = 'localhost'
-port = 1024
+ip = '59.102.50.243'
+port = 1025
 
 def sendMessage(info={}):
     data = json.dumps(info)
