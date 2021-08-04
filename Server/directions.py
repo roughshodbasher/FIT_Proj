@@ -116,26 +116,18 @@ class Path:
 def getDirectionsDemo():
     """startLocation = "Disneyland"
     endLoaction = "Universal Studios Hollywood"
-    vehicle =  ("Toyota, Yarris, 2013")"""
-    emissions = 165 #Co2 g/km
+    """
+
     f = open("routeTest.json")
     t = json.load(f)
     estimatedDistance = t['routes'][0]['legs'][0]['distance']['value']/1000
-
     # estimated emissions: g/CO2 * CO2 = g
     estimatedEmissions = emissions*estimatedDistance
-
-
-
-
-    routeRaw = []
     polyLine = []
     for d in t['routes'][0]['legs'][0]['steps']:
-        routeRaw.append((d['start_location']['lat'],d['start_location']['lng']))
         polyLine.append(d['polyline']['points'])
 
-    routeRaw.append((t['routes'][0]['legs'][0]['steps'][-1]['end_location']['lat'],t['routes'][0]['legs'][0]['steps'][-1]['end_location']['lng']))
-    return (t,routeRaw,polyLine,estimatedEmissions)
+    return (t,polyLine,estimatedDistance)
 
 
 def getDirections(data):
@@ -146,7 +138,12 @@ def getDirections(data):
     with urllib.request.urlopen("https://maps.googleapis.com/maps/api/directions/json?origin="+start+"&destination="+end+"&key="+key) as url:
         url_data = json.loads(url.read().decode())
     print(url_data)
+    estimatedDistance = t['routes'][0]['legs'][0]['distance']['value'] / 1000
+    polyLine = []
+    for d in t['routes'][0]['legs'][0]['steps']:
+        polyLine.append(d['polyline']['points'])
 
+    return (t, polyLine, estimatedDistance)
 
 
 
@@ -157,11 +154,16 @@ if __name__ == "__main__":
     offRouteLoc = [33.8353080852262, -117.92214664830355]
     0.000009009
 
+    '''test car information
+        vehicle =  ("Toyota, Yarris, 2013")
+    '''
+    emissions = 165  # Co2 g/km
+
     testRoute = [[33.8161014800008, -117.9225146125875], [33.82157343203593, -117.92277292780344], [33.8353080852262, -117.92214664830355],[33.8821008,-118.0249616]]
     """ end test data"""
-    (t, routeRaw, polyLine, estimatedEmissions) = getDirectionsDemo()
-
+    (t, polyLine, estimatedDistance) = getDirectionsDemo()
+    estimatedEmissions = estimatedDistance*emissions
+    # estimated emissions: g/CO2 * CO2 = g
     r = Path(polyLine)
-    for i in range(1000):
-        for p in testRoute:
-            r.onRoute(p)
+    for p in testRoute:
+        r.onRoute(p)

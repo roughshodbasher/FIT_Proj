@@ -3,7 +3,7 @@ import time
 import json
 
 ip = 'localhost'
-port = 1024
+port = 1025
 
 def sendMessage(info={}):
     data = json.dumps(info)
