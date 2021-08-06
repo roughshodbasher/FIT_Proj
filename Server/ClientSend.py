@@ -32,5 +32,5 @@ vehicle = ("Toyota, Yarris, 2013")
 
 data = {"requestType": "directions","start": currentLocation, "end" : destination, "vehicle" : vehicle}
 sendMessage(data)
-killServer()
+# killServer()
 
