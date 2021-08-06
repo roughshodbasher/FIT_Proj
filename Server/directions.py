@@ -194,8 +194,11 @@ def getDirectionsDemo():
     return (t,polyLine,estimatedDistance)
 
 
-def getDirections(data="{start : (0,0), end : (0,0)}"):
+def getDirections(data=json.dumps({"start" : [0,0], "end" : [0,0]}),debug=False):
     # pull info out of data request
+    d = json.loads(data)
+    start = str(d["start"][0])+' '+str(d["start"][1])
+    end = str(d["end"][0])+','+str(d["end"][1])
     key = None
     if not key:
         try:
@@ -204,9 +207,15 @@ def getDirections(data="{start : (0,0), end : (0,0)}"):
                 key = line.rstrip()
         except:
             key = ""
-            return (None,None,None,False)
-    with urllib.request.urlopen("https://maps.googleapis.com/maps/api/directions/json?origin="+start+"&destination="+end+"&key="+key) as url:
-        url_data = json.loads(url.read().decode())
+            return ("No API key",None,None,False)
+    try:
+        with urllib.request.urlopen("https://maps.googleapis.com/maps/api/directions/json?origin="+start+"&destination="+end+"&key="+key) as url:
+            url_data = json.loads(url.read().decode())
+    except:
+        return ("Incorrect API key", None, None, False)
+
+    if debug:
+        print(url_data)
     estimatedDistance = t['routes'][0]['legs'][0]['distance']['value'] / 1000
     polyLine = []
     for d in t['routes'][0]['legs'][0]['steps']:
@@ -230,7 +239,7 @@ if __name__ == "__main__":
 
     testRoute = [[33.8161014800008, -117.9225146125875], [33.82157343203593, -117.92277292780344], [33.8353080852262, -117.92214664830355],[33.8821008,-118.0249616],[33.8155166,-117.9238358],[33.8215783,-117.9226437]]
     """ end test data"""
-    (t, polyLine, estimatedDistance, keyCheck) = getDirectionsDemo()
+    (t, polyLine, estimatedDistance, keyCheck) = getDirections(debug=True)
     if keyCheck:
         estimatedEmissions = estimatedDistance*emissions
         # estimated emissions: g/CO2 * CO2 = g
