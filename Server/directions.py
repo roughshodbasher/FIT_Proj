@@ -103,13 +103,16 @@ class Path:
             else:
                 self.minY = pos2[1]
                 self.maxY = pos1[1]
-            self.minY -= tolerance
-            self.minX -= tolerance
-            self.maxY += tolerance
-            self.maxX += tolerance
+            self.minY -= tolerance/2
+            self.minX -= tolerance/2
+            self.maxY += tolerance/2
+            self.maxX += tolerance/2
+            self.p1 = np.array(pos1)
+            self.p2 = np.array(pos2)
+            self.tolerance = tolerance
         def inBox(self,pos,primitave=True):
             if self.minX < pos[0] and self.minY < pos[1] and self.maxX > pos[0] and self.maxY > pos[1]:
-                if primitave:
+                if np.cross(self.p2 - self.p1, pos - self.p1) / np.linalg.norm(self.p2 - self.p1) <= self.tolerance:
                     return True
             return False
 
@@ -159,11 +162,11 @@ if __name__ == "__main__":
     '''
     emissions = 165  # Co2 g/km
 
-    testRoute = [[33.8161014800008, -117.9225146125875], [33.82157343203593, -117.92277292780344], [33.8353080852262, -117.92214664830355],[33.8821008,-118.0249616]]
+    testRoute = [[33.8161014800008, -117.9225146125875], [33.82157343203593, -117.92277292780344], [33.8353080852262, -117.92214664830355],[33.8821008,-118.0249616],[33.8155166,-117.9238358],[33.8215783,-117.9226437]]
     """ end test data"""
     (t, polyLine, estimatedDistance) = getDirectionsDemo()
     estimatedEmissions = estimatedDistance*emissions
     # estimated emissions: g/CO2 * CO2 = g
     r = Path(polyLine)
     for p in testRoute:
-        r.onRoute(p)
+        print(r.onRoute(p))
