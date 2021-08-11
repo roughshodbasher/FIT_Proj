@@ -3,6 +3,8 @@ import urllib.request
 import math
 import numpy as np
 import timeit
+import minPath
+
 # import numpy.linalg as np.linalg
 """
 API Documentation
@@ -36,11 +38,16 @@ class Path:
         # coordBoxes contains all the coordBox objects
         self.coordBoxes = []
         #converting polyline into lat/long coordinates
-        coords = self.polylineToLinearCoords(self.polyline)
+        self.coords = self.polylineToLinearCoords(self.polyline)
         #creating the coordBoxes
-        for i in range(len(coords)-1):
-            self.coordBoxes.append(self.CoordBox(coords[i],coords[i+1],self.tolerance))
+        for i in range(len(self.coords)-1):
+            self.coordBoxes.append(self.CoordBox(self.coords[i],self.coords[i+1],self.tolerance))
 
+    def saveCords(self):
+        f = open("Route Test 2.csv","w")
+        for elem in self.coords:
+            f.write(str(elem[0])+","+str(elem[1])+'\n')
+        f.close()
 
     def onRoute(self,pos):
         '''
@@ -177,7 +184,7 @@ class Path:
                     return True
             return False
 
-def getDirectionsDemo():
+def getDirectionsSingleDemo():
     """startLocation = "Disneyland"
     endLoaction = "Universal Studios Hollywood"
     """
@@ -193,8 +200,7 @@ def getDirectionsDemo():
 
     return (t,polyLine,estimatedDistance)
 
-
-def getDirections(data=json.dumps({"start" : [0,0], "end" : [0,0]}),debug=False):
+def getDirectionsSingle(data=json.dumps({"start" : [0,0], "end" : [0,0]}),debug=False):
     # pull info out of data request
     d = json.loads(data)
     start = str(d["start"][0])+' '+str(d["start"][1])
@@ -216,6 +222,7 @@ def getDirections(data=json.dumps({"start" : [0,0], "end" : [0,0]}),debug=False)
 
     if debug:
         print(url_data)
+    t = url_data
     estimatedDistance = t['routes'][0]['legs'][0]['distance']['value'] / 1000
     polyLine = []
     for d in t['routes'][0]['legs'][0]['steps']:
@@ -223,7 +230,108 @@ def getDirections(data=json.dumps({"start" : [0,0], "end" : [0,0]}),debug=False)
 
     return (t, polyLine, estimatedDistance, True)
 
+def getDirectionsMultiple(data=json.dumps({"start" : [0,0], "destinations" : {0 : [0,0]}}),debug=False):
+    d = json.loads(data)
+    start = d["start"]
+    destinations = d["destinations"]
+    key = "AIzaSyBFZvxDebPWCyCXAd9nllQ4Vn_RQ7_hhkE"
+    if not key:
+        try:
+            f = open("key.api")
+            for line in f:
+                key = line.rstrip()
+        except:
+            key = ""
+            return ("No API key", None, None, False)
+    destinations = ["37.7663444,-122.4412006","37.7663444,-122.4412016","37.7663244,-122.4412026","37.7263444,-122.4412036","37.7633444,-122.4412046","37.7665444,-122.4412056"]
 
+    m = "https://maps.googleapis.com/maps/api/distancematrix/json?origins="+"37.7680296,-122.4375126"+"&destinations="+"|".join(destinations)+"&key="+key
+    print(m)
+
+    try:
+        with urllib.request.urlopen(m) as url:
+            url_data = json.loads(url.read().decode())
+    except:
+        return ("Incorrect API key", None, None, False)
+
+    if debug:
+        print(url_data)
+    return ("Incorrect API key", None, None, False)
+
+def getDirectionsMultipleDemo(data=json.dumps({"start" : [0,0], "destinations" : {0 : [0,0]}}),debug=False):
+    key = "AIzaSyALf62J-VtqLVZxbMY70L655jlH7zFhdGw"
+    if not key:
+        try:
+            f = open("key.api")
+            for line in f:
+                key = line.rstrip()
+        except:
+            key = ""
+            return ("No API key", None, None, False)
+    # need to call the api n times (n is the number of locations)
+    d = json.loads(data)
+    # print(d["destinations"])
+    d["destinations"] = [d["start"]] + d["destinations"]
+    for i,coord in enumerate(d["destinations"]):
+        d["destinations"][i][0] = str(d["destinations"][i][0])
+        d["destinations"][i][1] = str(d["destinations"][i][1])
+    arr = []
+    for elem in d["destinations"]:
+        arr.append(",".join(elem))
+    destinationString = "|".join(arr)
+    distanceMatrix = []
+    print(d["destinations"])
+    if not debug:
+        for elem in d["destinations"]:
+            print("???")
+            try:
+                with urllib.request.urlopen("https://maps.googleapis.com/maps/api/distancematrix/json?origins=" + ",".join(elem) + "&destinations=" + destinationString + "&key=" + key) as url:
+                    url_data = json.loads(url.read().decode())
+                    temp = []
+                    for elem in url_data["rows"][0]["elements"]:
+                        temp.append(elem["distance"]["value"])
+                    distanceMatrix.append(temp)
+            except:
+                return ("Incorrect API key", None, None, False)
+    else:
+        distanceMatrix = [[0, 2086, 3242, 3331, 9165, 24737, 25172, 19199],
+        [1156, 0, 1156, 3611, 10440, 26012, 26448, 10719],
+        [2312, 1156, 0, 2884, 8937, 24509, 24944, 9563],
+        [5400, 4244, 3518, 0, 5890, 22734, 23169, 11802],
+        [10778, 10212, 8795, 6327, 0, 18795, 19344, 13223],
+        [30372, 29806, 28389, 25921, 23532, 0, 18879, 33823],
+        [17645, 16489, 15333, 27188, 24790, 20628, 0, 14944],
+        [13536, 10572, 9416, 23135, 13391, 30161, 15128, 0],    ]
+    order = minPath.main(distanceMatrix)
+    order.append(0)
+    print(order)
+    locationOrder = []
+    for elem in order:
+        locationOrder.append(d["destinations"][elem])
+    startLocation = ",".join(locationOrder.pop(0))
+    toString = []
+    for elem in locationOrder:
+        toString.append(",".join(elem))
+    destinations = "|".join(toString)
+    print(destinations)
+    m = "https://maps.googleapis.com/maps/api/directions/json?origin=" + startLocation + "&destination=" + startLocation +"&waypoints="+destinations+ "&key=" + key
+    print(m)
+    if not debug:
+        try:
+            with urllib.request.urlopen(m) as url:
+                t = json.loads(url.read().decode())
+        except:
+            return ("Incorrect API key", None, None, False)
+    else:
+        f = open("routeMulti.json")
+        t = json.load(f)
+    estimatedDistance = t['routes'][0]['legs'][0]['distance']['value'] / 1000
+    polyLine = []
+    for d in t['routes'][0]['legs'][0]['steps']:
+        polyLine.append(d['polyline']['points'])
+    print(polyLine)
+    print(t["routes"][0]["overview_polyline"]["points"])
+    return (t, [t["routes"][0]["overview_polyline"]["points"]], estimatedDistance, True)
 
 if __name__ == "__main__":
     """test data"""
@@ -239,18 +347,12 @@ if __name__ == "__main__":
 
     testRoute = [[33.8161014800008, -117.9225146125875], [33.82157343203593, -117.92277292780344], [33.8353080852262, -117.92214664830355],[33.8821008,-118.0249616],[33.8155166,-117.9238358],[33.8215783,-117.9226437]]
     """ end test data"""
-    (t, polyLine, estimatedDistance, keyCheck) = getDirections(debug=True)
-    if keyCheck:
-        estimatedEmissions = estimatedDistance*emissions
-        # estimated emissions: g/CO2 * CO2 = g
-        r = Path(polyLine)
-        for p in testRoute:
-            print(r.onRoute(p))
-    ''' should print
-True
-True
-False
-True
-False
-False
-    '''
+    # (t, polyLine, estimatedDistance, keyCheck) = getDirectionsSingleDemo(debug=True)
+    startLocation = [33.81489414711607, -117.92336969628036]
+    destinations = [[33.81052620294962, -117.9312339328883],[33.81056566718572, -117.94374315691087],[33.83251967706872, -117.94375113424839],[33.864090283604945, -117.96752883738218],[33.963051852302605, -118.08490947387466],[33.83248413374035, -118.0850334763591],[33.773112801081425, -118.00051913281155]]
+    multiData = json.dumps({"start" : startLocation, "destinations" : destinations})
+    (t, polyLine, estimatedDistance, keyCheck) = getDirectionsMultipleDemo(data=multiData,debug=True)
+    print(polyLine)
+    r = Path(polyLine)
+    print(r.decodePolyline("knkmEh|vnUuAuCq@q@eBe@{Cg@eBCuEb@_GvA{Ar@gG`BiEz@oBbAgH~FsBnByCfBgOpOuDvDsBrCkHhKm@`@s@Hy@?AhBi@rG]rITlO?nIBly@Enr@@~A{CBqOJsD@gDRcE@a@?{AQaHF_JAmEe@gDCkET{HZuDH{DBaBQ}OB{BR{EBoC?qBBwBLkF?}KFs@??|@?v@@lFBbOBlV@vBc@?gABqABiRD_H@?mBjB?zIA?jB`MCpACfACb@??jA?z@@lAAfIBrM@jLD~\\@lCBnB[pAKb@[dBHjDDrEe@rEOr@@~@}@hC_DjHeFlJ{IjP}Uvi@yJjTuIxRaDpGu@hAeFvGkFjH_CvDoBpDu@~@w@?mAzBeEbKcA`DwEdNuDlJ_IrQgBdE}DjJiDnGuDdHsCvG}AzDwDvHeEtJyUvk@wBrFaK|TkG`MwM`XqNp[uFxL}DhHsG|JoDpE}JfKmTrTeBvByCrEiDxGoE|JyDrGiEjG_DrD{FlFqQnLs_@xUu[vRgO`KoBfAmKlH}ExCuB|@eIdD_Ch@iRdEgBPmAIwBm@MEa@HaCiAgGiC}E{B}NoHiLsFy_@kRcFyByJyCsSoGoWiI_I}CsOaHm@g@iCgAeFmBqHqBaFyAi@]]cA@YJo@nIxBHT|Bj@^LW`Bs@vCK\\}@vAc@Xy@Ic@q@@eA^k@r@K~Dz@vGlBxIpDtIlDpCjAj@CjFjBbGnBrEtAzQtFbQnFhHlCj\\hPrd@bUta@|Pn`@lP`T|ItD`BvJnDbPvDhKzA|Jx@rUf@jb@n@d_@f@|\\d@lHKr]w@l}@kBtBCbTm@vLy@lHmAlSuEfW}Gfh@yM~XsHzG{AxJyAbIkAzR{C~O_CdKkBfDiAtJgE~JwE|GkDlW{Ll\\}OnSkJrKeDtMsCxHcApJs@nQWbR@lT@~R?vLBpNI`C@fF^dDr@jGjCfDbCbDfDhBpBtDbDnC`BtF~Bf[bInLzCxRpHfI`D~EfAvG`@~BIjEg@~Aa@zDcBxMqHxAgAt@cApCsDjCwF|AkG^_I?qd@FaoAJ}eA?w]H_E?mIJwHOqG[iDw@sIC{ELmD`@_HP_b@@y`@D_e@Fw[@cGUuHBeBG{FByFr@aAPGr@@?{D?_EAqJEiJG_EAiGCoB?]h@?vA?wA?i@??eB?yAA}AAeJA_N@uMeUFqVHksAZ}\\Pmg@F}YJAgHIma@WakAQe_AMab@Gck@Cys@AgbAAmNEaEsK@?uN@cHA_@W?mD@s@AiBk@_BiBGM"))
+    r.saveCords()
