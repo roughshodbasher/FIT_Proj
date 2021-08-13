@@ -5,7 +5,13 @@ import json
 ip = 'localhost'
 port = 1025
 
-def sendMessage(info={}):
+def sendMessage(info={},raw=False):
+    if raw:
+        s = socket.socket()
+        dataSize = 1024
+        s.connect((ip, port))
+        s.sendall(bytes(info, encoding='utf-8'))
+        return
     data = json.dumps(info)
     s = socket.socket()
     dataSize = 1024
@@ -17,8 +23,8 @@ def sendMessage(info={}):
 
 
 def killServer():
-    data = {"requestType" : "exit"}
-    sendMessage(data)
+    data = "exit"
+    sendMessage(data,True)
 
 currentLocation = "Disneyland"
 destination = "Universal Studios Hollywood"
@@ -26,5 +32,5 @@ vehicle = ("Toyota, Yarris, 2013")
 
 data = {"requestType": "directions","start": currentLocation, "end" : destination, "vehicle" : vehicle}
 sendMessage(data)
-killServer()
+# killServer()
 
