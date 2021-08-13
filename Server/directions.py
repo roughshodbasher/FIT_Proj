@@ -259,7 +259,7 @@ def getDirectionsMultiple(data=json.dumps({"start" : [0,0], "destinations" : {0 
     return ("Incorrect API key", None, None, False)
 
 def getDirectionsMultipleDemo(data=json.dumps({"start" : [0,0], "destinations" : {0 : [0,0]}}),debug=False):
-    key = "AIzaSyALf62J-VtqLVZxbMY70L655jlH7zFhdGw"
+    key = None
     if not key:
         try:
             f = open("key.api")
