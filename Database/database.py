@@ -11,9 +11,9 @@ Run this after installing mysql in your computer
 #using flask.ext
 def maintwo():
     app = Flask(__name__)
-    app.config['MYSQL_HOST'] = '127.0.0.1'
-    app.config['MYSQL_USER'] = 'com1'
-    app.config['MYSQL_PASSWORD'] = 'admin'
+    app.config['MYSQL_HOST'] = '192.168.1.103'
+    app.config['MYSQL_USER'] = 'root'
+    app.config['MYSQL_PASSWORD'] = ''
     app.config['MYSQL_DB'] = 'fitproj'
     mysql = MySQL(app)
 
@@ -63,8 +63,8 @@ if __name__ == "__main__":
     )
     '''
     databs = mysql.connector.connect(
-    host = "202.125.24.136:3306",
-    user = "user1",
+    host = "192.168.1.103",
+    user = "root",
     passwd = "",
     # add database = after running CREATE DATABASE in .execute line 22
     database= "fitproj"
