@@ -1,11 +1,23 @@
 import mysql.connector
 
 
+#{"type": 1, "name": "Database", "data": {"method": "get", command": "vehicle_info", "rego": "vehicle registration number"}}}
+#{"type": 1, "name": "Database", "data": {"method": "get", "command": "vehicle_trip", "rego": "vehicle registration number"}}}
+#{"type": 1, "name": "Database", "data": {"method": "get", "command": "emission"}}}
+
 def connect_to_db():
     cnx = mysql.connector.connect(user=, password=,
                                   host=,
                                   database=)
     return cnx
+
+
+def handle_db_request(request):
+    method = request["method"]
+    if method == "get":
+        # call appropriate function based on request
+    elif method == "post":
+        # add things to the database
 
 
 def get_vehicle_info(rego):
