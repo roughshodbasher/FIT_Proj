@@ -2,6 +2,8 @@ import socket  # Import socket module
 import json
 import directions
 import threading
+#import AccessDatabase as db
+
 
 class threadRoute(threading.Thread):
     def __init__(self,threadId,port):
@@ -28,6 +30,8 @@ def clientThread(port):
             directions_thread(s,d["data"])
         elif d["type"] == 1:
             #do database stuff
+            #toSend = bytes(db.handle_db_request(d["data"]), encoding='utf-8')
+            #client.sendall(toSend)
             pass
         return
 
