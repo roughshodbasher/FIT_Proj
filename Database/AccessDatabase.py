@@ -1,22 +1,33 @@
 import mysql.connector
+import json
 
 
-#{"type": 1, "name": "Database", "data": {"method": "get", command": "vehicle_info", "rego": "vehicle registration number"}}}
+
+#{"type": 1, "name": "Database", "data": {"method": "get", "command": "vehicle_info", "rego": "vehicle registration number"}}}
 #{"type": 1, "name": "Database", "data": {"method": "get", "command": "vehicle_trip", "rego": "vehicle registration number"}}}
 #{"type": 1, "name": "Database", "data": {"method": "get", "command": "emission"}}}
 
+
+
 def connect_to_db():
-    cnx = mysql.connector.connect(user=, password=,
-                                  host=,
-                                  database=)
+    cnx = mysql.connector.connect(user='', password='',
+                                  host='',
+                                  database='fitproj')
     return cnx
 
 
 def handle_db_request(request):
     method = request["method"]
+    command = request["command"]
+
     if method == "get":
+        if command == "vehicle_info":
+            return get_vehicle_info(request["rego"])
+        elif command == "all_vehicle_info":
+            return get_all_vehicle()
         # call appropriate function based on request
     elif method == "post":
+        pass
         # add things to the database
 
 
@@ -24,20 +35,37 @@ def get_vehicle_info(rego):
     con = connect_to_db()
     cursor = con.cursor()
     # query: select from db, information about the vehicle
-    query = "select * from fit_db.Vehicle where rego = %s"
+    query = "select * from fitproj.Vehicle where registration = %s"
 
     param = (rego, )
     cursor.execute(query, param)
-    info = {}
-    cols = cursor.description
-    items = cursor.fetchall()[0]
-    for i in range(len(cols)):
-        col_name = cols[i][0]
-        info[col_name] = items[i]
-
+    fetchresults = cursor.fetchall()
+    colnames = [x[0] for x in cursor.description]
     cursor.close()
     con.close()
+    return make_json(fetchresults, colnames)
     return info
+
+
+def get_all_vehicle():
+    con = connect_to_db()
+    cursor = con.cursor()
+    query = "select * from fitproj.Vehicle"
+
+    cursor.execute(query)
+    fetchresults = cursor.fetchall()
+    colnames=[x[0] for x in cursor.description]
+    cursor.close()
+    con.close()
+    return make_json(fetchresults, colnames)
+
+
+def make_json(fetchresults, colnames):
+    to_return = []
+    for results in fetchresults:
+        to_return.append(dict(zip(colnames, results)))
+    return json.dumps(to_return)
+
 
 
 def get_trip_by_rego():
@@ -53,7 +81,4 @@ def get_emission():
 
 def add_trip(trip):
     pass
-
-
-
 
