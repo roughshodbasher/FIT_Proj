@@ -10,8 +10,8 @@ import json
 
 
 def connect_to_db():
-    cnx = mysql.connector.connect(user='', password='',
-                                  host='',
+    cnx = mysql.connector.connect(user='root', password='',
+                                  host='localhost',
                                   database='fitproj')
     return cnx
 
