@@ -86,6 +86,7 @@ if __name__ == "__main__":
     clientSize = 100
     openPorts = [[True,1025 + i] for i in range(clientSize)]
     mainSock.listen(5)  # Now wait for client connection.
+    # change while true to something else (need to have exit cond)
     while True:
         client, addr_init = mainSock.accept()  # Establish connection with client.
         print('Got connection from', addr_init)
@@ -94,7 +95,20 @@ if __name__ == "__main__":
         check that threading function actually works
         
         """
-        threads.append(threadRoute(0,))
+        # swapping ports
+        for i,open in enumerate(openPorts):
+            if open[0]:
+                openPorts[i][0] = False
+                dataSend = bytes(json.dumps({"port" :openPorts[i][1]}),encoding='utf-8')
+                newPort = socket.socket()
+                newPort.bind(('0.0.0.0'),open[1])
+                client.sendall(dataSend)
+                newPort.listen(5)
+                #change while true to something else, user may time out
+                while True:
+                    newClient, addr = newPort.accept()
+
+        # threads.append(threadRoute(0,))
         # data = c.recv(dataSize)
         # data = json.loads(data)
         # if data['requestType'] == "exit":
