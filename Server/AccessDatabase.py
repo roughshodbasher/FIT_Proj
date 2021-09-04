@@ -2,10 +2,17 @@ import mysql.connector
 import json
 
 
-
+# get vehicle information by rego
 #{"type": 1, "name": "Database", "data": {"method": "get", "command": "vehicle_info", "rego": "vehicle registration number"}}}
+# get vehicle trip by rego
 #{"type": 1, "name": "Database", "data": {"method": "get", "command": "vehicle_trip", "rego": "vehicle registration number"}}}
+
+
 #{"type": 1, "name": "Database", "data": {"method": "get", "command": "emission"}}}
+#{"type": 1, "name": "Database", "data": {"method": "post", "command": "add_vehicle", "vin":"", "make": "",
+# "rego": "", "year": "", "fuel_consumption": "", "kilometers": "", "engine":""}}}
+
+
 
 
 
@@ -27,6 +34,8 @@ def handle_db_request(request):
             return get_all_vehicle()
         # call appropriate function based on request
     elif method == "post":
+        if command == "add_vehicle":
+            add_vehicle(request)
         pass
         # add things to the database
 
@@ -82,3 +91,5 @@ def get_emission():
 def add_trip(trip):
     pass
 
+def add_vehicle(data):
+    pass
