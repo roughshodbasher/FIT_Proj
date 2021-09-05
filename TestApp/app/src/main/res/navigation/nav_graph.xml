@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/FirstFragment">
+
+    <fragment
+        android:id="@+id/FirstFragment"
+        android:name="com.example.testapp.FirstFragment"
+        android:label="@string/first_fragment_label"
+        tools:layout="@layout/fragment_first">
+
+        <action
+            android:id="@+id/action_FirstFragment_to_AnalyticsFragment"
+            app:destination="@id/AnalyticsFragment" />
+        <action
+            android:id="@+id/action_FirstFragment_to_MapsFragment"
+            app:destination="@id/MapsFragment" />
+        <action
+            android:id="@+id/action_FirstFragment_to_VehicleInfoFragment"
+            app:destination="@id/VehicleInfoFragment" />
+        <action
+            android:id="@+id/action_FirstFragment_to_StartTripFragment"
+            app:destination="@id/StartTripFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/AnalyticsFragment"
+        android:name="com.example.testapp.AnalyticsFragment"
+        android:label="@string/analytics_fragment_label"
+        tools:layout="@layout/fragment_analytics">
+
+        <action
+            android:id="@+id/action_SecondFragment_to_FirstFragment"
+            app:destination="@id/FirstFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/MapsFragment"
+        android:name="com.example.testapp.MapsFragment"
+        android:label="@string/maps_fragment_label"
+        tools:layout="@layout/fragment_maps">
+    </fragment>
+    <fragment
+        android:id="@+id/VehicleInfoFragment"
+        android:name="com.example.testapp.VehicleInfoFragment"
+        android:label="@string/vehicle_info_fragment_label"
+        tools:layout="@layout/fragment_vehicle_info">
+        <action
+            android:id="@+id/action_VehicleInfoFragment_to_NewVehicleInfoFragment"
+            app:destination="@id/NewVehicleInfoFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/NewVehicleInfoFragment"
+        android:name="com.example.testapp.NewVehicleInfoFragment"
+        android:label="@string/new_vehicle_info_fragment_label"
+        tools:layout="@layout/fragment_new_vehicle_info">
+    </fragment>
+    <fragment
+        android:id="@+id/StartTripFragment"
+        android:name="com.example.testapp.StartTripFragment"
+        android:label="@string/start_trip_fragment_label"
+        tools:layout="@layout/fragment_start_trip">
+    </fragment>
+</navigation>

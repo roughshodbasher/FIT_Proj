@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".NewVehicleInfoFragment"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/vinText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="VIN:"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="18dp"
+        />
+
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        app:layout_constraintStart_toStartOf="@+id/vinText"
+        app:layout_constraintTop_toBottomOf="@+id/vinText"
+        android:id="@+id/vinEditText"
+        />
+
+    <TextView
+        android:id="@+id/makeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Make:"
+        app:layout_constraintTop_toBottomOf="@+id/vinEditText"
+        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="18dp"
+        />
+
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        app:layout_constraintStart_toStartOf="@+id/makeText"
+        app:layout_constraintTop_toBottomOf="@+id/makeText"
+        android:id="@+id/makeEditText"
+        />
+
+    <TextView
+        android:id="@+id/registrationText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Registration:"
+        app:layout_constraintTop_toBottomOf="@+id/makeEditText"
+        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="18dp"
+        />
+
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        app:layout_constraintStart_toStartOf="@+id/registrationText"
+        app:layout_constraintTop_toBottomOf="@+id/registrationText"
+        android:id="@+id/registrationEditText"
+        />
+
+    <TextView
+        android:id="@+id/yearText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Year:"
+        app:layout_constraintTop_toBottomOf="@id/registrationEditText"
+        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="18dp"
+        />
+
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        app:layout_constraintStart_toStartOf="@+id/yearText"
+        app:layout_constraintTop_toBottomOf="@+id/yearText"
+        android:id="@+id/yearEditText"
+        />
+
+    <TextView
+        android:id="@+id/fuelConsumptionText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Fuel Consumption:"
+        app:layout_constraintTop_toBottomOf="@id/yearEditText"
+        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="18dp"
+        />
+
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        app:layout_constraintStart_toStartOf="@+id/fuelConsumptionText"
+        app:layout_constraintTop_toBottomOf="@+id/fuelConsumptionText"
+        android:id="@+id/fuelConsumptionEditText"
+        />
+
+    <TextView
+        android:id="@+id/kilometersText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Kilometers:"
+        app:layout_constraintTop_toBottomOf="@id/fuelConsumptionEditText"
+        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="18dp"
+        />
+
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        app:layout_constraintStart_toStartOf="@+id/kilometersText"
+        app:layout_constraintTop_toBottomOf="@+id/kilometersText"
+        android:id="@+id/kilometersEditText"
+        />
+
+    <TextView
+        android:id="@+id/engineText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Engine:"
+        app:layout_constraintTop_toBottomOf="@id/kilometersEditText"
+        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="18dp"
+        />
+
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        app:layout_constraintStart_toStartOf="@+id/engineText"
+        app:layout_constraintTop_toBottomOf="@+id/engineText"
+        android:id="@+id/engineEditText"
+        />
+
+    <Button
+        android:id="@+id/addVehicleButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Vehicle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
