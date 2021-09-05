@@ -1,5 +1,3 @@
-package com.example;
-
 import java.io.DataOutputStream;
 import java.net.Socket;
 import java.io.*;
@@ -34,8 +32,11 @@ public class communication {
     public Boolean sendMessage(String message) {
         try {
 
+//        	PrintWriter writer = new PrintWriter(dOut, true);
+//        	writer.println(message);
+//          dOut.flush();
+
             dOut.writeUTF(message);
-            dOut.flush();
 
             return true;
         }
@@ -45,6 +46,14 @@ public class communication {
     }
     public String getMessage() {
         try {
+//            BufferedReader reader = new BufferedReader(new InputStreamReader(s.getInputStream()));
+//            StringBuilder builder = new StringBuilder();
+//            String line;
+//            while ((line = reader.readLine()) != null) {
+//            	builder.append(line);
+//            }
+//
+//            return builder.toString();
             return (String)dIn.readUTF();
         }
         catch(Exception  e) {
