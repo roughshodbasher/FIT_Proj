@@ -53,7 +53,6 @@ def get_vehicle_info(rego):
     cursor.close()
     con.close()
     return make_json(fetchresults, colnames)
-    return info
 
 
 def get_all_vehicle():
@@ -91,5 +90,52 @@ def get_emission():
 def add_trip(trip):
     pass
 
+
 def add_vehicle(data):
-    pass
+    vin = data["vin"]
+    make = data["make"]
+    registration = data["rego"]
+    year = data["year"]
+    fuel_cons = data["fuel_consumption"]
+    model = data["model"]
+    kilometers = data["kilometers"]
+    engine = data["engine"]
+    fuel_type = data["fuel_type"]
+    emission = data["emission"]
+
+    con = connect_to_db()
+    cursor = con.cursor()
+    query = "select veh_id from fitproj.VehicleType where yr = %s and make = %s and model = %s"
+
+    param = (year, make, model,)
+    cursor.execute(query, param)
+    fetchresults = cursor.fetchall()
+    if fetchresults == []:
+        new_type_query = "insert into fitproj.VehicleType (make, model, yr, fuel_type, fuel_cons, emissions, eng) " \
+                         "values(%s, %s, %s, %s, %s, %s, %s)"
+        param1 = (make, model, year, fuel_type, fuel_cons, emission, engine)
+        cursor.execute(new_type_query, param1)
+        con.commit()
+        veh_type_id = get_id(year, make, model)
+    else:
+        veh_type_id = fetchresults[0][0]
+
+    # insert vehicle in the vehicle table
+    new_veh_query = "insert into fitproj.Vehicle (registration, vin, veh_type_id) values (%s, %s, %s)"
+    param2 = (registration, vin, veh_type_id)
+    cursor.execute(new_veh_query, param2)
+    con.commit()
+    cursor.close()
+    con.close()
+
+def get_id(year, make, model):
+    con = connect_to_db()
+    cursor = con.cursor()
+    query = "select veh_id from fitproj.VehicleType where yr = %s and make = %s and model = %s"
+
+    param = (year, make, model, )
+    cursor.execute(query, param)
+    fetchresults = cursor.fetchall()
+    cursor.close()
+    con.close()
+    return fetchresults[0][0]
