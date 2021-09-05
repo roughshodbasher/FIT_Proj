@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp"
+    tools:context=".StartTripFragment">
+
+    <!--from text-->
+    <TextView
+        android:id="@+id/fromText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="From:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <!--from edit text-->
+    <EditText
+        android:id="@+id/fromEditText"
+        android:layout_width="260dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="20dp"
+        app:layout_constraintStart_toEndOf="@+id/fromText"
+        app:layout_constraintTop_toTopOf="parent"
+        android:drawableLeft="@drawable/ic_location"/>
+    <!--current location button-->
+    <Button
+        android:id="@+id/currentLocationButton"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        app:layout_constraintStart_toEndOf="@+id/fromEditText"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:drawableTop="@drawable/ic_my_location"/>
+    <!--to text-->
+    <TextView
+        android:id="@+id/toText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="To:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fromEditText" />
+    <!--to edit text-->
+    <EditText
+        android:id="@+id/destinationsEditText"
+        android:layout_width="260dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintStart_toStartOf="@+id/fromEditText"
+        app:layout_constraintTop_toBottomOf="@+id/fromEditText"
+        android:drawableLeft="@drawable/ic_location"/>
+    <!--add destination button-->
+    <Button
+        android:id="@+id/addDestinationButton"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        app:layout_constraintStart_toEndOf="@+id/destinationsEditText"
+        app:layout_constraintTop_toTopOf="@+id/destinationsEditText"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:drawableTop="@drawable/ic_plus"
+        android:backgroundTint="@color/quantum_googgreen"/>
+    <!--mulitple destinations list>-->
+    <ListView
+        android:id="@+id/destinationsList"
+        android:layout_width="300dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/destinationsEditText" />
+    <!--car vin text-->
+    <TextView
+        android:id="@+id/carText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Car VIN:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/destinationsList" />
+    <!--car vin autocomplete-->
+    <AutoCompleteTextView
+        android:id="@+id/carAutoCompleteText"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintStart_toStartOf="@+id/fromEditText"
+        app:layout_constraintTop_toBottomOf="@+id/destinationsList" />
+    <!--start button-->
+    <Button
+        android:id="@+id/startButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Test App</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">Main Menu</string>
+    <string name="analytics_fragment_label">Analytics</string>
+    <string name="maps_fragment_label">Map</string>
+    <string name="vehicle_info_fragment_label">Vehicle Info</string>
+    <string name="start_trip_fragment_label">Start Trip</string>
+    <string name="new_vehicle_info_fragment_label">New Vehicle Info</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Employee ID</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome!"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+
+</resources>
