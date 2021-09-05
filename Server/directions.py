@@ -192,6 +192,7 @@ class Travelling:
         self.tolerance = 10
         self.data = json.loads(data)
         self.destinations = self.destinations["destinations"][:]
+        self.visited = [data["start"]]
         if len(self.data["directions"]) == 1:
             self.single = True
             if not debug:
@@ -207,6 +208,7 @@ class Travelling:
             raise KeyError
 
     def onRoute(self,point):
+        self.visited.append(point)
         if not self.single:
           self.removeVisited(point)
         if  self.path.onRoute(point):
@@ -232,6 +234,10 @@ class Travelling:
         if np.linalg.norm(np.array(point), np.array(self.destinations[-1])) < self.tolerance / meters_to_coord:
             return True
         return False
+
+    def calcEmissions(self):
+        # use lin alg to cal distances mult by car emissions
+        return
 def getDirectionsSingleDemo():
     """startLocation = "Disneyland"
     endLoaction = "Universal Studios Hollywood"

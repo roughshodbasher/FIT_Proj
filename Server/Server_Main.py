@@ -85,6 +85,7 @@ def clientPortSwitch(client,addr_init,openPorts):
 
 
 if __name__ == "__main__":
+    threaded = False
     threads = []
     mainSock = boot(1024)
     clientSize = 100
@@ -99,19 +100,50 @@ if __name__ == "__main__":
         check that threading function actually works
         
         """
-        # swapping ports
-        for i,open in enumerate(openPorts):
-            if open[0]:
-                openPorts[i][0] = False
-                dataSend = bytes(json.dumps({"port" :openPorts[i][1]}),encoding='utf-8')
-                newPort = socket.socket()
-                newPort.bind(('0.0.0.0'),open[1])
-                client.sendall(dataSend)
-                newPort.listen(5)
-                #change while true to something else, user may time out
-                while True:
-                    newClient, addr = newPort.accept()
+        if threaded:
+            # swapping ports
+            for i,open in enumerate(openPorts):
+                if open[0]:
+                    openPorts[i][0] = False
+                    dataSend = bytes(json.dumps({"port" :openPorts[i][1]}),encoding='utf-8')
+                    newPort = socket.socket()
+                    newPort.bind(('0.0.0.0'),open[1])
+                    client.sendall(dataSend)
+                    newPort.listen(5)
+                    #change while true to something else, user may time out
+                    while True:
+                        newClient, addr = newPort.accept()
+        else:
+            # get location data from client
+            data = client.recv(1024)
+            data = json.loads(data)
+            if data['requestType'] == 'directions':
+                #directions
+                pass
+                atDestination = False
+                r = directions.Travelling(data['data'])
+                # need to send polyline stuff too
+                client.sendall(json.dumps({"action": 0}))
+                while not atDestination:
+                    data = client.recv(1024)
+                    data = json.loads(data)
+                    #assuming client sending current location
+                    if r.onRoute(data["location"]):
+                        if r.atEnd(data["location"]):
+                            r.calcEmissions()
+                            client.sendall(json.dumps({"action":3}))
+                        else:
+                            client.sendall(json.dumps({"action": 2}))
+                            atDestination = True
+                    else:
+                        client.sendall(json.dumps({"action": 0}))
+                        #send new route data too
 
+            elif data['requestType'] == 'database':
+                pass
+            else:
+                #return bad request
+                pass
         # threads.append(threadRoute(0,))
         # data = c.recv(dataSize)
         # data = json.loads(data)
