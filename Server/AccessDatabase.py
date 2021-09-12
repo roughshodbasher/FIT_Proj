@@ -36,6 +36,8 @@ def handle_db_request(request):
     elif method == "post":
         if command == "add_vehicle":
             return add_vehicle(request)
+        elif command == "add_truck_by_type":
+            return add_truck_by_type(request)
 
         # add things to the database
 
@@ -112,12 +114,13 @@ def add_vehicle(data):
         cursor.execute(query, param)
         fetchresults = cursor.fetchall()
         if fetchresults == []:
-            new_type_query = "insert into fitproj.VehicleType (make, model, yr, fuel_type, fuel_cons, emissions, eng) " \
-                             "values(%s, %s, %s, %s, %s, %s, %s)"
+            new_type_query = "insert into fitproj.VehicleType (make, model, yr, fuel_type, fuel_cons, emissions, eng, trucktype) " \
+                             "values(%s, %s, %s, %s, %s, %s, %s, NULL)"
             param1 = (make, model, year, fuel_type, fuel_cons, emission, engine)
-            cursor.execute(new_type_query, param1)
+            cursor.execute(new_type_query, param1,)
             con.commit()
-            veh_type_id = get_id(year, make, model)
+            cursor.execute(query, param)
+            veh_type_id = cursor.fetchall()[0][0]
         else:
             veh_type_id = fetchresults[0][0]
 
@@ -133,14 +136,39 @@ def add_vehicle(data):
         return json.dumps("error")
 
 
-def get_id(year, make, model):
-    con = connect_to_db()
-    cursor = con.cursor()
-    query = "select veh_id from fitproj.VehicleType where yr = %s and make = %s and model = %s"
+def add_truck_by_type(data):
+    try:
+        vin = data["vin"]
+        registration = data["rego"]
+        fuel_cons = data["fuel_consumption"]
+        emission = data["emission"]
+        trucktype = data["trucktype"]
 
-    param = (year, make, model, )
-    cursor.execute(query, param)
-    fetchresults = cursor.fetchall()
-    cursor.close()
-    con.close()
-    return fetchresults[0][0]
+        con = connect_to_db()
+        cursor = con.cursor()
+        query = "select veh_id from fitproj.VehicleType where trucktype = %s"
+
+        param = (trucktype, )
+        cursor.execute(query, param)
+        fetchresults = cursor.fetchall()
+        if fetchresults == []:
+            new_type_query = "insert into fitproj.VehicleType (make, model, yr, fuel_type, fuel_cons, emissions, eng, trucktype) " \
+                             "values(NULL, NULL, NULL, NULL, %s, %s, NULL, %s)"
+            param1 = (fuel_cons, emission, trucktype,)
+            cursor.execute(new_type_query, param1)
+            con.commit()
+            cursor.execute(query, param)
+            veh_type_id = cursor.fetchall()[0][0]
+        else:
+            veh_type_id = fetchresults[0][0]
+
+        # insert vehicle in the vehicle table
+        new_veh_query = "insert into fitproj.Vehicle (registration, vin, veh_type_id) values (%s, %s, %s)"
+        param2 = (registration, vin, veh_type_id, )
+        cursor.execute(new_veh_query, param2)
+        con.commit()
+        cursor.close()
+        con.close()
+        return json.dumps("success")
+    except:
+        return json.dumps("error")
