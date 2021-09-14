@@ -32,6 +32,8 @@ def handle_db_request(request):
             return get_vehicle_info(request["rego"])
         elif command == "all_vehicle_info":
             return get_all_vehicle()
+        elif command == "trip":
+            return get_trip(request)
         # call appropriate function based on request
     elif method == "post":
         if command == "add_vehicle":
@@ -172,3 +174,25 @@ def add_truck_by_type(data):
         return json.dumps("success")
     except:
         return json.dumps("error")
+
+
+
+def get_trip(data):
+    con = connect_to_db()
+    cursor = con.cursor()
+    start_d = data["start"]
+    end_d = data["end"]
+    query = "select * from fitproj.Trips where date >= %s and date <= %s;"
+
+    param = (start_d, end_d, )
+    cursor.execute(query, param)
+    fetchresults = cursor.fetchall()
+    new_results = []
+    for r in fetchresults:
+        date = r[6]
+        date.strftime('%m/%d/%Y')
+        new_results.append((r[0], r[1], r[2], r[3], r[4], r[5], str(date), r[7]))
+    colnames = [x[0] for x in cursor.description]
+    cursor.close()
+    con.close()
+    return make_json(new_results, colnames)
