@@ -40,6 +40,8 @@ def handle_db_request(request):
             return add_vehicle(request)
         elif command == "add_truck_by_type":
             return add_truck_by_type(request)
+        elif command == "login":
+            return login(request)
 
         # add things to the database
 
@@ -62,7 +64,7 @@ def get_vehicle_info(rego):
 def get_all_vehicle():
     con = connect_to_db()
     cursor = con.cursor()
-    query = "select * from fitproj.Vehicle"
+    query = "select registration from fitproj.Vehicle"
 
     cursor.execute(query)
     fetchresults = cursor.fetchall()
@@ -78,17 +80,6 @@ def make_json(fetchresults, colnames):
         to_return.append(dict(zip(colnames, results)))
     return json.dumps(to_return)
 
-
-
-def get_trip_by_rego():
-    con = connect_to_db()
-    # execute query and process data here
-
-    con.close()
-
-
-def get_emission():
-    pass
 
 
 def add_trip(trip):
@@ -196,3 +187,25 @@ def get_trip(data):
     cursor.close()
     con.close()
     return make_json(new_results, colnames)
+
+
+def login(data):
+    login_id = data["login_id"]
+    password = data["password"]
+    res = {}
+    con = connect_to_db()
+    cursor = con.cursor()
+    query = "select user_id from fitproj.Users where loginID = %s and BINARY password = %s;"
+    param = (login_id, password,)
+    cursor.execute(query, param)
+    fetchresults = cursor.fetchall()
+    if not fetchresults:
+        res["status"] = "error"
+        res["response"] = "wrong login id or password"
+    else:
+        user_id = fetchresults[0][0]
+        res["status"] = "success"
+        res["response"] = user_id
+    cursor.close()
+    con.close()
+    return json.dumps(res)
