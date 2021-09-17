@@ -17,10 +17,16 @@ import json
 
 
 def connect_to_db():
-    cnx = mysql.connector.connect(user='root', password='',
-                                  host='localhost',
-                                  database='fitproj')
-    return cnx
+    try:
+        cnx = mysql.connector.connect(user='root', password='',
+                                      host='localhost',
+                                      database='fitproj')
+        return True, cnx
+    except:
+        result = {}
+        result["status"] = 500
+        result["message"] = "Cannot connect to the database"
+        return False, result
 
 
 def handle_db_request(request):
@@ -47,38 +53,121 @@ def handle_db_request(request):
 
 
 def get_vehicle_info(rego):
-    con = connect_to_db()
-    cursor = con.cursor()
-    # query: select from db, information about the vehicle
-    query = "select * from fitproj.Vehicle where registration = %s"
+    """
+    This function takes in a string, rego, this will be the registration of a vehicle, and gets all the data relevant
+    to the vehicle and return it as a json string.
+    :param rego: string, vehicle registration number
+    :return: json response
+    if the call was successful, then this function returns a json in the form
+    {status: 200, message: [{"registration": registration of vehicle, "vin": vin of vehicle, "veh_type_id": vehicle type
+    id stored in the database}]}
 
-    param = (rego, )
-    cursor.execute(query, param)
-    fetchresults = cursor.fetchall()
-    colnames = [x[0] for x in cursor.description]
-    cursor.close()
-    con.close()
-    return make_json(fetchresults, colnames)
+    else:
+    if the call was unsuccessful:
+    if error connecting with database, then it returns:
+    {"status": 500, "message": "Cannot connect to the database"}
+
+    if there is problem with the registration number, then it returns:
+    {"status": 400, "message": "Invalid registration number"}
+    """
+    # result of connecting to the database
+    result = connect_to_db()
+    # is_connected is a boolean indicating if the connection was successful
+    is_connected = result[0]
+    # if the connection was successful, con will be the connection, otherwise, con will be the error message
+    # to be sent back to the client
+    con = result[1]
+
+    # execute the query if connection is available
+    if is_connected:
+        cursor = con.cursor()
+
+        # query: select from db, information about the vehicle
+        query = "select * from fitproj.Vehicle where registration = %s"
+
+        param = (rego, )
+        # execute query
+        cursor.execute(query, param)
+        # fetch the results
+        fetch_results = cursor.fetchall()
+
+        # if not result returned when looking up the vehicle with registration = rego, then return error message
+        if not fetch_results:
+            response = {}
+            response["status"] = 400
+            response["message"] = "Invalid registration number"
+            return json.dumps(response)
+
+        colnames = [x[0] for x in cursor.description]   # get the column names
+        # close connection and cursor
+        cursor.close()
+        con.close()
+        # call make_json to combine the column names and the data and return the final result as a json string
+        return make_json(fetch_results, colnames, 200)
+
+    # else, immediate return the error message
+    else:
+        return json.dumps(con)
 
 
 def get_all_vehicle():
-    con = connect_to_db()
-    cursor = con.cursor()
-    query = "select registration from fitproj.Vehicle"
+    """
+    This function gets the registration number of all the vehicles in the database
+    :return: json response
+    if the call was successful, then this function returns a json in the form
+    {status: 200, message: [{"registration": "Plate number"} ... {"registration": "Plate number"}]}
+    else:
+    if the call was unsuccessful, if error connecting with database, then it returns:
+    {"status": 500, "message": "Cannot connect to the database"}
+    """
+    # result of connecting to the database
+    result = connect_to_db()
+    # is_connected is a boolean indicating if the connection was successful
+    is_connected = result[0]
+    # if the connection was successful, con will be the connection, otherwise, con will be the error message
+    # to be sent back to the client
+    con = result[1]
 
-    cursor.execute(query)
-    fetchresults = cursor.fetchall()
-    colnames=[x[0] for x in cursor.description]
-    cursor.close()
-    con.close()
-    return make_json(fetchresults, colnames)
+    # execute the query if connection is available
+    if is_connected:
+        cursor = con.cursor()
+        query = "select registration from fitproj.Vehicle"
+
+        # execute query
+        cursor.execute(query)
+        # fetch results
+        fetch_results = cursor.fetchall()
+        # get the column names of the results, this will be used as key in the json response
+        colnames=[x[0] for x in cursor.description]
+        # close the cursor and connection
+        cursor.close()
+        con.close()
+        # call make_json to generate the json response with all the data
+        return make_json(fetch_results, colnames, 200)
+
+    # else, immediate return the error message
+    else:
+        return json.dumps(con)
 
 
-def make_json(fetchresults, colnames):
+def make_json(fetchresults, colnames, status):
+    """
+    This is a function that combines the results returned from the database, and the status code of the query into
+    a single json string
+    :param fetchresults: this contains the actual data returned by the query
+    :param colnames: the columns names, this will be used as keys in the json string
+    :param status: status code
+    :return: json string, in the form,
+    {"status": int, "message": [array containing each row returned]}
+    """
+    response = {}
+    response["status"] = status
     to_return = []
+    response["message"] = to_return
+    # for each row in the fetchresults, add to the array
     for results in fetchresults:
         to_return.append(dict(zip(colnames, results)))
-    return json.dumps(to_return)
+    return json.dumps(response)
 
 
 
