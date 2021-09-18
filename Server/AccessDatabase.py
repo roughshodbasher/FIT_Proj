@@ -55,7 +55,7 @@ def handle_db_request(request):
 def get_vehicle_info(rego):
     """
     This function takes in a string, rego, this will be the registration of a vehicle, and gets all the data relevant
-    to the vehicle and return it as a json string.
+    to the vehicle and return it as a json.
     :param rego: string, vehicle registration number
     :return: json response
     if the call was successful, then this function returns a json in the form
@@ -93,6 +93,8 @@ def get_vehicle_info(rego):
 
         # if not result returned when looking up the vehicle with registration = rego, then return error message
         if not fetch_results:
+            cursor.close()
+            con.close()
             response = {}
             response["status"] = 400
             response["message"] = "Invalid registration number"
@@ -102,7 +104,7 @@ def get_vehicle_info(rego):
         # close connection and cursor
         cursor.close()
         con.close()
-        # call make_json to combine the column names and the data and return the final result as a json string
+        # call make_json to combine the column names and the data and return the final result as a json
         return make_json(fetch_results, colnames, 200)
 
     # else, immediate return the error message
@@ -153,11 +155,11 @@ def get_all_vehicle():
 def make_json(fetchresults, colnames, status):
     """
     This is a function that combines the results returned from the database, and the status code of the query into
-    a single json string
+    a single json
     :param fetchresults: this contains the actual data returned by the query
-    :param colnames: the columns names, this will be used as keys in the json string
+    :param colnames: the columns names, this will be used as keys in the json
     :param status: status code
-    :return: json string, in the form,
+    :return: json, in the form,
     {"status": int, "message": [array containing each row returned]}
     """
     response = {}
@@ -176,125 +178,270 @@ def add_trip(trip):
 
 
 def add_vehicle(data):
-    try:
-        vin = data["vin"]
-        make = data["make"]
-        registration = data["rego"]
-        year = data["year"]
-        fuel_cons = data["fuel_consumption"]
-        model = data["model"]
-        kilometers = data["kilometers"]
-        engine = data["engine"]
-        fuel_type = data["fuel_type"]
-        emission = data["emission"]
+    """
+    This function takes in a json that contains the vehicle information, and add the vehicle to the database
+    :param data: json, containing the information for the vehicle, vin, make, registration, year, fuel_cons,
+    model, engine, fuel_type, emission
+    :return:
+    if the insertion was successful, then it returns:
+    {"status": 200, "message": "Vehicle added successfully"}
 
-        con = connect_to_db()
-        cursor = con.cursor()
-        query = "select veh_id from fitproj.VehicleType where yr = %s and make = %s and model = %s"
+    else:
+    if the call was unsuccessful, if error connecting with database, then it returns:
+    {"status": 500, "message": "Cannot connect to the database"}
 
-        param = (year, make, model,)
-        cursor.execute(query, param)
-        fetchresults = cursor.fetchall()
-        if fetchresults == []:
-            new_type_query = "insert into fitproj.VehicleType (make, model, yr, fuel_type, fuel_cons, emissions, eng, trucktype) " \
-                             "values(%s, %s, %s, %s, %s, %s, %s, NULL)"
-            param1 = (make, model, year, fuel_type, fuel_cons, emission, engine)
-            cursor.execute(new_type_query, param1,)
-            con.commit()
+    if error occurred when inserting the vehicle, then a generic error message is returned:
+    {"status": 400, "message": "Error occurred when adding the vehicle to the database"}
+    """
+
+    # result of connecting to the database
+    result = connect_to_db()
+    # is_connected is a boolean indicating if the connection was successful
+    is_connected = result[0]
+    # if the connection was successful, con will be the connection, otherwise, con will be the error message
+    # to be sent back to the client
+    con = result[1]
+
+    # if connection to database was successful
+    if is_connected:
+        try:
+            # gets the relevant data from the input json
+            vin = data["vin"]
+            make = data["make"]
+            registration = data["rego"]
+            year = data["year"]
+            fuel_cons = data["fuel_consumption"]
+            model = data["model"]
+            kilometers = data["kilometers"]
+            engine = data["engine"]
+            fuel_type = data["fuel_type"]
+            emission = data["emission"]
+
+            cursor = con.cursor()
+
+            # get the vehicle id for the vehicle that is about to be inserted based on year, make and model
+            query = "select veh_id from fitproj.VehicleType where yr = %s and make = %s and model = %s"
+
+            param = (year, make, model,)
             cursor.execute(query, param)
-            veh_type_id = cursor.fetchall()[0][0]
-        else:
-            veh_type_id = fetchresults[0][0]
+            fetchresults = cursor.fetchall()
 
-        # insert vehicle in the vehicle table
-        new_veh_query = "insert into fitproj.Vehicle (registration, vin, veh_type_id) values (%s, %s, %s)"
-        param2 = (registration, vin, veh_type_id)
-        cursor.execute(new_veh_query, param2)
-        con.commit()
-        cursor.close()
-        con.close()
-        return json.dumps("success")
-    except:
-        return json.dumps("error")
+            # if fetchresults == [], then this means that the database doesn't not have the information for the type of
+            # the vehicle stored, so create a new vehicle type in the database using the data being passed in
+            if fetchresults == []:
+                # query to create the new vehicle type
+                new_type_query = "insert into fitproj.VehicleType (make, model, yr, fuel_type, fuel_cons, emissions, eng, trucktype) " \
+                                 "values(%s, %s, %s, %s, %s, %s, %s, NULL)"
+                param1 = (make, model, year, fuel_type, fuel_cons, emission, engine)
+                cursor.execute(new_type_query, param1,)
+                con.commit()
+
+                # now get the vehicle type id (that was just been inserted)
+                cursor.execute(query, param)
+                veh_type_id = cursor.fetchall()[0][0]  # get the id
+            else:
+                # if the type already exist in the database, then get the id from fetchresults
+                veh_type_id = fetchresults[0][0]
+
+            # insert the vehicle into the vehicle table, using registration, vin and vehicle type id
+            new_veh_query = "insert into fitproj.Vehicle (registration, vin, veh_type_id) values (%s, %s, %s)"
+            param2 = (registration, vin, veh_type_id)
+            cursor.execute(new_veh_query, param2)
+            con.commit()
+            cursor.close()
+            con.close()
+            return json.dumps({"status":200, "message":"Vehicle added successfully"})
+        except:
+            return json.dumps({"status":400, "message":"Error occurred when adding the vehicle to the database"})
+
+    # else, immediate return the error message
+    else:
+        return json.dumps(con)
 
 
 def add_truck_by_type(data):
-    try:
-        vin = data["vin"]
-        registration = data["rego"]
-        fuel_cons = data["fuel_consumption"]
-        emission = data["emission"]
-        trucktype = data["trucktype"]
+    """
+    This function takes in a json containing information about a truck, and inserts the truck into the database.
+    This insertion is based on truck type, so only information needed is the vin, registration, fuel_cons, emission
+    and trucktype.
 
-        con = connect_to_db()
-        cursor = con.cursor()
-        query = "select veh_id from fitproj.VehicleType where trucktype = %s"
+    :param data: json, containing the information about the truck, vin, registration, fuel_cons, emission, trucktype
+    :return:
+    if the insertion was successful, then it returns:
+    {"status": 200, "message": "Vehicle added successfully"}
 
-        param = (trucktype, )
-        cursor.execute(query, param)
-        fetchresults = cursor.fetchall()
-        if fetchresults == []:
-            new_type_query = "insert into fitproj.VehicleType (make, model, yr, fuel_type, fuel_cons, emissions, eng, trucktype) " \
-                             "values(NULL, NULL, NULL, NULL, %s, %s, NULL, %s)"
-            param1 = (fuel_cons, emission, trucktype,)
-            cursor.execute(new_type_query, param1)
-            con.commit()
+    else:
+    if the call was unsuccessful, if error connecting with database, then it returns:
+    {"status": 500, "message": "Cannot connect to the database"}
+
+    if error occurred when inserting the vehicle, then a generic error message is returned:
+    {"status": 400, "message": "Error occurred when adding the vehicle to the database"}
+    """
+
+    # result of connecting to the database
+    result = connect_to_db()
+    # is_connected is a boolean indicating if the connection was successful
+    is_connected = result[0]
+    # if the connection was successful, con will be the connection, otherwise, con will be the error message
+    # to be sent back to the client
+    con = result[1]
+
+    # if connection to database was successful
+    if is_connected:
+        try:
+            # get the data from json
+            vin = data["vin"]
+            registration = data["rego"]
+            fuel_cons = data["fuel_consumption"]
+            emission = data["emission"]
+            trucktype = data["trucktype"]
+
+            cursor = con.cursor()
+            # get the vehicle id for the type of the vehicle that is being inserted
+            query = "select veh_id from fitproj.VehicleType where trucktype = %s"
+            param = (trucktype, )
             cursor.execute(query, param)
-            veh_type_id = cursor.fetchall()[0][0]
-        else:
-            veh_type_id = fetchresults[0][0]
+            fetchresults = cursor.fetchall()
 
-        # insert vehicle in the vehicle table
-        new_veh_query = "insert into fitproj.Vehicle (registration, vin, veh_type_id) values (%s, %s, %s)"
-        param2 = (registration, vin, veh_type_id, )
-        cursor.execute(new_veh_query, param2)
-        con.commit()
-        cursor.close()
-        con.close()
-        return json.dumps("success")
-    except:
-        return json.dumps("error")
+            # if fetchresults == [], then the database does not have any record for the this type of truck, so
+            # need to create a vehicle/truck type
+            if fetchresults == []:
+                # query to create the new type
+                new_type_query = "insert into fitproj.VehicleType (make, model, yr, fuel_type, fuel_cons, emissions, eng, trucktype) " \
+                                 "values(NULL, NULL, NULL, NULL, %s, %s, NULL, %s)"
+                param1 = (fuel_cons, emission, trucktype,)
+                cursor.execute(new_type_query, param1)
+                con.commit()
+                cursor.execute(query, param)
 
+                # get the vehicle id for the new type just created
+                veh_type_id = cursor.fetchall()[0][0]
+            else:
+                # else, if the type already exist in the database, just get the vehicle id from result returned
+                veh_type_id = fetchresults[0][0]
+
+            # insert vehicle into the vehicle table using registration, vin and vehicle type id
+            new_veh_query = "insert into fitproj.Vehicle (registration, vin, veh_type_id) values (%s, %s, %s)"
+            param2 = (registration, vin, veh_type_id, )
+            cursor.execute(new_veh_query, param2)
+            con.commit()
+            cursor.close()
+            con.close()
+            return json.dumps({"status":200, "message":"Vehicle added successfully"})
+        except:
+            return json.dumps({"status":400, "message":"Error occurred when adding the vehicle to the database"})
+
+    # else, immediate return the error message
+    else:
+        return json.dumps(con)
 
 
 def get_trip(data):
-    con = connect_to_db()
-    cursor = con.cursor()
-    start_d = data["start"]
-    end_d = data["end"]
-    query = "select * from fitproj.Trips where date >= %s and date <= %s;"
+    """
+    This function takes in a json, which contains two dates, and it will return trips of all vehicles that are between
+    the two dates (inclusive)
+    :param data: json, {start: start date, end: end date}, date is in the form yyyy-mm-dd
+    :return:
+    if no error occurred then it returns an array of all the trips:
+    {"status": 200,
+    "message": [{"trip_id": , "user_id": , "veh_reg": , "start": , "end": , "dist":, "date": , "total_emi": } ...]}
 
-    param = (start_d, end_d, )
-    cursor.execute(query, param)
-    fetchresults = cursor.fetchall()
-    new_results = []
-    for r in fetchresults:
-        date = r[6]
-        date.strftime('%m/%d/%Y')
-        new_results.append((r[0], r[1], r[2], r[3], r[4], r[5], str(date), r[7]))
-    colnames = [x[0] for x in cursor.description]
-    cursor.close()
-    con.close()
-    return make_json(new_results, colnames)
+    else:
+    if error with database connection, then it returns:
+    {"status": 500, "message": "Cannot connect to the database"}
+    """
+    # result of connecting to the database
+    result = connect_to_db()
+    # is_connected is a boolean indicating if the connection was successful
+    is_connected = result[0]
+    # if the connection was successful, con will be the connection, otherwise, con will be the error message
+    # to be sent back to the client
+    con = result[1]
+
+    # if connection to database was successful
+    if is_connected:
+        cursor = con.cursor()
+        start_d = data["start"]
+        end_d = data["end"]
+        # select trips that are greater than or equal to the start date and less than or equal to the end date
+        query = "select * from fitproj.Trips where date >= %s and date <= %s;"
+
+        param = (start_d, end_d, )
+
+        # execute the query
+        cursor.execute(query, param)
+        fetchresults = cursor.fetchall()
+        new_results = []
+
+        # the date returned by the trip is a datetime object, need to convert it to string
+        for r in fetchresults:
+            date = r[6]
+            date.strftime('%m/%d/%Y')
+            new_results.append((r[0], r[1], r[2], r[3], r[4], r[5], str(date), r[7]))
+        colnames = [x[0] for x in cursor.description]   # get the columns names
+        cursor.close()
+        con.close()
+        # call make_json to combine all the data
+        return make_json(new_results, colnames, 200)
+
+    # else, immediate return the error message
+    else:
+        return json.dumps(con)
 
 
 def login(data):
-    login_id = data["login_id"]
-    password = data["password"]
-    res = {}
-    con = connect_to_db()
-    cursor = con.cursor()
-    query = "select user_id from fitproj.Users where loginID = %s and BINARY password = %s;"
-    param = (login_id, password,)
-    cursor.execute(query, param)
-    fetchresults = cursor.fetchall()
-    if not fetchresults:
-        res["status"] = "error"
-        res["response"] = "wrong login id or password"
+    """
+    This function authenticate user login
+    :param data: json, this contains the login_id and password
+    :return: json
+    if no error occurred, then it returns:
+    {"status": 200, "message": the user_id for the user}
+
     else:
-        user_id = fetchresults[0][0]
-        res["status"] = "success"
-        res["response"] = user_id
-    cursor.close()
-    con.close()
-    return json.dumps(res)
+    if error with database connection, then it returns:
+    {"status": 500, "message": "Cannot connect to the database"}
+
+    if the login_id or password is incorrect, then it returns:
+    {"status": 400, "message": "Incorrect login id or password"}
+    """
+    # result of connecting to the database
+    result = connect_to_db()
+    # is_connected is a boolean indicating if the connection was successful
+    is_connected = result[0]
+    # if the connection was successful, con will be the connection, otherwise, con will be the error message
+    # to be sent back to the client
+    con = result[1]
+
+    # if the connection to database is successful then execute the following
+    if is_connected:
+        # get the login_id and password from input json
+        login_id = data["login_id"]
+        password = data["password"]
+
+        # get cursor and execute query
+        cursor = con.cursor()
+        query = "select user_id from fitproj.Users where loginID = %s and BINARY password = %s;"
+        param = (login_id, password,)
+        cursor.execute(query, param)
+
+        # get result
+        fetchresults = cursor.fetchall()
+
+        res = {}
+
+        # if none got returned, then something is wrong with the login_id or password, set status and  error message
+        if not fetchresults:
+            res["status"] = 400
+            res["message"] = "Incorrect login id or password"
+        # else, the authentication was successful, return the user_id for the user
+        else:
+            user_id = fetchresults[0][0]
+            res["status"] = 200
+            res["message"] = user_id
+        cursor.close()
+        con.close()
+        return json.dumps(res)
+
+    # else, immediate return the error message
+    else:
+        return json.dumps(con)
