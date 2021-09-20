@@ -17,6 +17,14 @@ import json
 
 
 def connect_to_db():
+    """
+    This function connects to the database
+    :return: a tuple
+    if the connection was successful, then return:
+    (True, the connection)
+    else:
+    return (False, error message which is to be returned)
+    """
     try:
         cnx = mysql.connector.connect(user='root', password='',
                                       host='localhost',
@@ -30,26 +38,40 @@ def connect_to_db():
 
 
 def handle_db_request(request):
+    """
+    This function takes in a json and execute relevant function based on the command in the json request
+    :param request: json
+    :return: json, contains the status code and message of the query
+    """
     method = request["method"]
     command = request["command"]
 
+    # execute the relevant function based on the query
+    # get data from the database
     if method == "get":
+        # get the information of a particular vehicle
         if command == "vehicle_info":
             return get_vehicle_info(request["rego"])
+        # get the registration number of all vehicles in the database
         elif command == "all_vehicle_info":
             return get_all_vehicle()
+        # get all trips between two dates
         elif command == "trip":
             return get_trip(request)
-        # call appropriate function based on request
     elif method == "post":
+        # add a vehicle to the database
         if command == "add_vehicle":
             return add_vehicle(request)
+        # add a truck to the database, based on type
         elif command == "add_truck_by_type":
             return add_truck_by_type(request)
+        # checks login detail of the user
         elif command == "login":
             return login(request)
+        # add trip to the database
+        elif command == "add_trip":
+            return add_trip(request)
 
-        # add things to the database
 
 
 def get_vehicle_info(rego):
@@ -172,9 +194,61 @@ def make_json(fetchresults, colnames, status):
     return json.dumps(response)
 
 
+def add_trip(data):
+    """
+    This function takes in a json, containing information about a trip, and add the trip to the database
+    :param data: json containing the data about the trip to be added
+    :return:
+    if the trip got inserted to the database successfully, then it returns:
+    {"status": 200, "message": "Trip added successfully"}
 
-def add_trip(trip):
-    pass
+    else:
+    if the call was unsuccessful, if error connecting with database, then it returns:
+    {"status": 500, "message": "Cannot connect to the database"}
+
+    if error occurred when inserting the trip, then a generic error message is returned:
+    {"status":400, "message":"Error occurred when adding the trip to the database"}    """
+    # result of connecting to the database
+    result = connect_to_db()
+    # is_connected is a boolean indicating if the connection was successful
+    is_connected = result[0]
+    # if the connection was successful, con will be the connection, otherwise, con will be the error message
+    # to be sent back to the client
+    con = result[1]
+
+    # if connection to database was successful
+    if is_connected:
+        try:
+            # get the data from the input json "data"
+            user_id = data["user_id"]
+            veh_reg = data["veh_reg"]
+            start = data["start"]
+            end = data["end"]
+            dist = data["distance"]
+            date = data["date"]
+            total_emi = data["total_emission"]
+
+            cursor = con.cursor()
+            query = "insert into fitproj.Trips (user_id, veh_reg, start, end, dist, date, total_emi) values " \
+                    "(%s, %s, %s, %s, %s, %s, %s)"
+
+            param = (user_id, veh_reg, start, end, dist, date, total_emi, )
+            # execute query
+            cursor.execute(query, param)
+            con.commit()
+            # close the cursor and connection
+            cursor.close()
+            con.close()
+            # the insertion was successful, return relevant message
+            return json.dumps({"status": 200, "message": "Trip added successfully"})
+        except:
+            # error occurred in the try block when trying to insert the trip, return relevant error message
+            return json.dumps({"status":400, "message":"Error occurred when adding the trip to the database"})
+
+    # else, immediate return the error message
+    else:
+        return json.dumps(con)
+
 
 
 def add_vehicle(data):
@@ -212,7 +286,6 @@ def add_vehicle(data):
             year = data["year"]
             fuel_cons = data["fuel_consumption"]
             model = data["model"]
-            kilometers = data["kilometers"]
             engine = data["engine"]
             fuel_type = data["fuel_type"]
             emission = data["emission"]
@@ -232,8 +305,8 @@ def add_vehicle(data):
                 # query to create the new vehicle type
                 new_type_query = "insert into fitproj.VehicleType (make, model, yr, fuel_type, fuel_cons, emissions, eng, trucktype) " \
                                  "values(%s, %s, %s, %s, %s, %s, %s, NULL)"
-                param1 = (make, model, year, fuel_type, fuel_cons, emission, engine)
-                cursor.execute(new_type_query, param1,)
+                param1 = (make, model, year, fuel_type, fuel_cons, emission, engine, )
+                cursor.execute(new_type_query, param1)
                 con.commit()
 
                 # now get the vehicle type id (that was just been inserted)
@@ -369,7 +442,7 @@ def get_trip(data):
         param = (start_d, end_d, )
 
         # execute the query
-        cursor.execute(query, param)
+        cursor.execute(query, param, )
         fetchresults = cursor.fetchall()
         new_results = []
 
