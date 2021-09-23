@@ -1,8 +1,9 @@
 """Simple travelling salesman problem between cities."""
 
-from ortools.constraint_solver import routing_enums_pb2
-from ortools.constraint_solver import pywrapcp
-
+#from ortools.constraint_solver import routing_enums_pb2
+# from ortools.constraint_solver import pywrapcp
+from LinAlg import routing_enums_pb2
+from LinAlg import pywrapcp
 
 def print_solution(manager, routing, solution):
     """Prints solution on console."""
@@ -68,4 +69,13 @@ def main(distanceMatrix):
 
 
 if __name__ == '__main__':
-    main()
+    distanceMatrix = [[0, 2086, 3242, 3331, 9165, 24737, 25172, 19199],
+                      [1156, 0, 1156, 3611, 10440, 26012, 26448, 10719],
+                      [2312, 1156, 0, 2884, 8937, 24509, 24944, 9563],
+                      [5400, 4244, 3518, 0, 5890, 22734, 23169, 11802],
+                      [10778, 10212, 8795, 6327, 0, 18795, 19344, 13223],
+                      [30372, 29806, 28389, 25921, 23532, 0, 18879, 33823],
+                      [17645, 16489, 15333, 27188, 24790, 20628, 0, 14944],
+                      [13536, 10572, 9416, 23135, 13391, 30161, 15128, 0], ]
+
+    print(main(distanceMatrix))

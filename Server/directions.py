@@ -315,7 +315,7 @@ def getDirectionsMultiple(data,debug=False):
         except:
             key = ""
             return ("No API key", None, None, False)
-    
+
     # need to call the api n times (n is the number of locations)
     # d = json.loads(data)
     # print(d["destinations"])
