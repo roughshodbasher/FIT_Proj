@@ -119,7 +119,6 @@ if __name__ == "__main__":
             data = json.loads(data)
             if data['requestType'] == 'directions':
                 #directions
-                pass
                 atDestination = False
                 r = directions.Travelling(data['data'])
                 # need to send polyline stuff too

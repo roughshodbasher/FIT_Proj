@@ -2,15 +2,17 @@ import socket               # Import socket module
 import time
 import json
 
-ip = 'localhost'
-port = 1024
+ip = '194.193.148.240'
+port = 1025
 
 def sendMessage(info={},raw=False):
+    print("Started")
     if raw:
         s = socket.socket()
-        dataSize = 1024
+        dataSize = 1025
         s.connect((ip, port))
         s.sendall(bytes(info, encoding='utf-8'))
+        print(s.recv(1024))
         return
     data = json.dumps(info)
     s = socket.socket()
@@ -48,6 +50,7 @@ destination = "Universal Studios Hollywood"
 vehicle = ("Toyota, Yarris, 2013")
 
 data = {"type": 0,"start": currentLocation, "destinations" : destination, "vehicle" : vehicle}
-sendMessage(data)
+data = "test"
+sendMessage(data,True)
 # killServer()
 

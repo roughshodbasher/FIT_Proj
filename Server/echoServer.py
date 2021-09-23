@@ -7,8 +7,10 @@ if __name__ == '__main__':
     s.listen(5)  # Now wait for client connection.
     while True:
         c, addr = s.accept()  # Establish connection with client.
+        print(addr)
         data = c.recv(dataSize)
         c.sendall(data)
+        print(data)
         f = open("log.txt",'a')
         f.write(data+"\n")
         f.close()

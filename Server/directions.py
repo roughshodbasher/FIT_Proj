@@ -188,12 +188,32 @@ class Path:
             return False
 
 class Travelling:
-    def __init__(self,data=json.dumps({"start" : [0,0], "destinations" : {0 : [0,0]}}),debug=False):
+    def __init__(self,data=json.dumps({"start":"lat\/lng: (-37.810108,144.9582684)","destinations":"[lat\/lng: (-37.8174907,144.9545615), lat\/lng: (-37.9069897,145.1560372)]","vehicle":"ABC123"}),debug=False):
+        data = json.loads(data)
+
+        #cleaning the input data from mobile application
+        data["start"] = data["start"][data["start"].find("(") + 1:data["start"].find(")")]
+        data["start"] = data["start"].split(",")
+        data["start"][0] = float(data["start"][0])
+        data["start"][1] = float(data["start"][1])
+
+        data["destinations"] = data["destinations"].split("lat\/lng")
+        del data["destinations"][0]
+        for i in range(len(data["destinations"])):
+            data["destinations"][i] = data["destinations"][i][
+                                      data["destinations"][i].find("(") + 1:data["destinations"][i].find(")")]
+            data["destinations"][i] = data["destinations"][i].split(",")
+            data["destinations"][i][0] = float(data["destinations"][i][0])
+            data["destinations"][i][1] = float(data["destinations"][i][1])
+
         self.tolerance = 10
-        self.data = json.loads(data)
-        self.destinations = self.destinations["destinations"][:]
+        self.data = data
+        self.destinations = data["destinations"][:]
         self.visited = [data["start"]]
-        if len(self.data["directions"]) == 1:
+
+        print(data)
+
+        if len(self.data["destinations"]) == 1:
             self.single = True
             if not debug:
                 (self.apiData, self.polyLine, self.estimatedDistance, keyCheck) = getDirectionsSingle(data)
@@ -283,7 +303,9 @@ def getDirectionsSingle(start = [0,0], destinations = {0:[0,0]},debug=False):
 
     return (t, polyLine, estimatedDistance, True)
 
-def getDirectionsMultiple(start = [0,0], destinations = {0 : [0,0]},debug=False):
+def getDirectionsMultiple(data,debug=False):
+    start = data["start"]
+    destinations = data["destinations"]
     key = ""
     if not key:
         try:
@@ -293,9 +315,11 @@ def getDirectionsMultiple(start = [0,0], destinations = {0 : [0,0]},debug=False)
         except:
             key = ""
             return ("No API key", None, None, False)
+    
     # need to call the api n times (n is the number of locations)
     # d = json.loads(data)
     # print(d["destinations"])
+    print(destinations)
     destinations = [start] + destinations
     for i, coord in enumerate(destinations):
         destinations[i][0] = str(destinations[i][0])
@@ -440,18 +464,20 @@ if __name__ == "__main__":
     testRoute = [[33.8161014800008, -117.9225146125875], [33.82157343203593, -117.92277292780344], [33.8353080852262, -117.92214664830355],[33.8821008,-118.0249616],[33.8155166,-117.9238358],[33.8215783,-117.9226437]]
     """ end test data"""
     # (t, polyLine, estimatedDistance, keyCheck) = getDirectionsSingleDemo(debug=True)
-    startLocation = [33.81489414711607, -117.92336969628036]
-    destinations = [[33.81052620294962, -117.9312339328883],[33.81056566718572, -117.94374315691087],[33.83251967706872, -117.94375113424839],[33.864090283604945, -117.96752883738218],[33.963051852302605, -118.08490947387466],[33.83248413374035, -118.0850334763591],[33.773112801081425, -118.00051913281155]]
-    multiData = json.dumps({"start" : startLocation, "destinations" : destinations})
-    (t, polyLine, estimatedDistance, keyCheck) = getDirectionsMultiple(startLocation,destinations,debug=False)
-
     # startLocation = [33.81489414711607, -117.92336969628036]
-    # destinations = [[33.81052620294962, -117.9312339328883]]
-    # singleData = json.dumps({"start": startLocation, "destinations": destinations})
-    # (t, polyLine, estimatedDistance, keyCheck) = getDirectionsSingle(startLocation,destinations, debug=False)
-    if not polyLine:
-        print(t)
-    else:
-        print(t)
-        r = Path(polyLine)
-        r.saveCords()
+    # destinations = [[33.81052620294962, -117.9312339328883],[33.81056566718572, -117.94374315691087],[33.83251967706872, -117.94375113424839],[33.864090283604945, -117.96752883738218],[33.963051852302605, -118.08490947387466],[33.83248413374035, -118.0850334763591],[33.773112801081425, -118.00051913281155]]
+    # multiData = json.dumps({"start" : startLocation, "destinations" : destinations})
+    # (t, polyLine, estimatedDistance, keyCheck) = getDirectionsMultiple(startLocation,destinations,debug=False)
+    #
+    # # startLocation = [33.81489414711607, -117.92336969628036]
+    # # destinations = [[33.81052620294962, -117.9312339328883]]
+    # # singleData = json.dumps({"start": startLocation, "destinations": destinations})
+    # # (t, polyLine, estimatedDistance, keyCheck) = getDirectionsSingle(startLocation,destinations, debug=False)
+    # if not polyLine:
+    #     print(t)
+    # else:
+    #     print(t)
+    #     r = Path(polyLine)
+    #     r.saveCords()
+    test = Travelling()
+    print(test.polyLine)
