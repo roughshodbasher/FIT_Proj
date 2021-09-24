@@ -4,6 +4,7 @@ import math
 import numpy as np
 import timeit
 import minPath
+import minRoute
 
 
 meters_to_coord = 0.000009009
@@ -258,6 +259,7 @@ class Travelling:
     def calcEmissions(self):
         # use lin alg to cal distances mult by car emissions
         return
+
 def getDirectionsSingleDemo():
     """startLocation = "Disneyland"
     endLoaction = "Universal Studios Hollywood"
@@ -344,8 +346,10 @@ def getDirectionsMultiple(data,debug=False):
                     distanceMatrix.append(temp)
             except:
                 return ("Incorrect API key", None, None, False)
-    order = minPath.main(distanceMatrix)
-    order.append(0)
+    # order = minPath.main(distanceMatrix)
+    order = minRoute.minRoute(distanceMatrix)
+    order = order.getOrder()
+    # order.append(0)
     locationOrder = []
     for elem in order:
         locationOrder.append(destinations[elem])
@@ -381,6 +385,7 @@ def getDirectionsMultipleDemo(data=json.dumps({"start" : [0,0], "destinations" :
         except:
             key = ""
             return ("No API key", None, None, False)
+
     # need to call the api n times (n is the number of locations)
     d = json.loads(data)
     # print(d["destinations"])
@@ -481,3 +486,4 @@ if __name__ == "__main__":
     #     r.saveCords()
     test = Travelling()
     print(test.polyLine)
+    print(vars(test))
