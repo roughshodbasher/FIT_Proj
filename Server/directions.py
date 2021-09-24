@@ -485,5 +485,5 @@ if __name__ == "__main__":
     #     r = Path(polyLine)
     #     r.saveCords()
     test = Travelling()
-    print(test.polyLine)
+    print(test.polyLine[0])
     print(vars(test))
