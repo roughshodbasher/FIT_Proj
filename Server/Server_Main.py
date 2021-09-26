@@ -125,7 +125,7 @@ if __name__ == "__main__":
                 atDestination = False
                 r = directions.Travelling((data['data']))
                 # need to send polyline stuff too
-                client.sendall((json.dumps({"action": 0, "polyline" : r.polyLine[0]})).encode("utf-8"))
+                client.sendall(((json.dumps({"action": 0, "polyline" : r.polyLine[0]}))+'\n').encode("utf-8"))
                 while not atDestination:
                     data = client.recv(1024)
                     print(data)
