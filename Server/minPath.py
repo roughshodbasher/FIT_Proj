@@ -1,7 +1,7 @@
 """Simple travelling salesman problem between cities."""
 
-from ortools.constraint_solver import routing_enums_pb2
-from ortools.constraint_solver import pywrapcp
+# from ortools.constraint_solver import routing_enums_pb2
+# from ortools.constraint_solver import pywrapcp
 
 
 def print_solution(manager, routing, solution):

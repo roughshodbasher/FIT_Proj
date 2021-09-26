@@ -41,6 +41,7 @@ def directions_thread(s,data):
     atDestination = False
     while not atDestination:
         data = s.recv(1024)
+        data = data[data.find(b'{'):]
         data = data.decode()
         position = data["position"]
         if r.atEnd(position):
@@ -98,7 +99,7 @@ if __name__ == "__main__":
         """
         fix changing port
         check that threading function actually works
-        
+
         """
         if threaded:
             # swapping ports
@@ -116,16 +117,21 @@ if __name__ == "__main__":
         else:
             # get location data from client
             data = client.recv(1024)
-            data = json.loads(data)
+            data = data[data.find(b'{'):]
+            print(data)
+            data = json.loads(data.decode())
             if data['requestType'] == 'directions':
                 #directions
                 atDestination = False
-                r = directions.Travelling(data['data'])
+                r = directions.Travelling((data['data']))
                 # need to send polyline stuff too
-                client.sendall(json.dumps({"action": 0, "polyline" : r.polyLine[0]}))
+                client.sendall((json.dumps({"action": 0, "polyline" : r.polyLine[0]})).encode("utf-8"))
                 while not atDestination:
                     data = client.recv(1024)
-                    data = json.loads(data)
+                    print(data)
+                    print()
+                    data = json.loads(data.decode())
+                    print(data)
                     #assuming client sending current location
                     if r.onRoute(data["location"]):
                         if r.atEnd(data["location"]):

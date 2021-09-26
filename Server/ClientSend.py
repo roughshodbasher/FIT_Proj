@@ -3,15 +3,16 @@ import time
 import json
 
 ip = '194.193.148.240'
-port = 1025
+# ip = 'localhost'
+port = 1024
 
 def sendMessage(info={},raw=False):
     print("Started")
     if raw:
         s = socket.socket()
-        dataSize = 1025
+        dataSize = 1024
         s.connect((ip, port))
-        s.sendall(bytes(info, encoding='utf-8'))
+        s.sendall(b'\x00\x9c{"requestType":"directions","data":{"start":"lat\\/lng: (-37.810108,144.9582684)","destinations":"[lat\\/lng: (-37.8174907,144.9545615)]","vehicle":"ABC123"}}')
         print(s.recv(1024))
         return
     data = json.dumps(info)
@@ -52,5 +53,6 @@ vehicle = ("Toyota, Yarris, 2013")
 data = {"type": 0,"start": currentLocation, "destinations" : destination, "vehicle" : vehicle}
 data = "test"
 sendMessage(data,True)
+m = b'\x00\x9c{"requestType":"directions","data":{"start":"lat\\/lng: (-37.810108,144.9582684)","destinations":"[lat\\/lng: (-37.8174907,144.9545615)]","vehicle":"ABC123"}}'
 # killServer()
 

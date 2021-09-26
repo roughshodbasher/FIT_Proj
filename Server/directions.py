@@ -190,7 +190,7 @@ class Path:
 
 class Travelling:
     def __init__(self,data=json.dumps({"start":"lat\/lng: (-37.810108,144.9582684)","destinations":"[lat\/lng: (-37.8174907,144.9545615), lat\/lng: (-37.9069897,145.1560372)]","vehicle":"ABC123"}),debug=False):
-        data = json.loads(data)
+        #nandata = json.loads(data)
 
         #cleaning the input data from mobile application
         data["start"] = data["start"][data["start"].find("(") + 1:data["start"].find(")")]
