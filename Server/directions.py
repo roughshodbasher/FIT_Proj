@@ -5,6 +5,7 @@ import numpy as np
 import timeit
 import minPath
 import minRoute
+import ast
 
 
 meters_to_coord = 0.000009009
@@ -199,6 +200,7 @@ class Travelling:
         data["start"][1] = float(data["start"][1])
 
         data["destinations"] = data["destinations"].split("lat\/lng")
+        data["destinations"] = ast.literal_eval(data["destinations"][0])[0]
         data["destinations"] = data["destinations"].split(",")
 
         #del data["destinations"][0]
