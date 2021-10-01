@@ -145,7 +145,10 @@ if __name__ == "__main__":
                         #send new route data too
 
             elif data['requestType'] == 'database':
-                pass
+                d = db.get_trip(data['data'])
+                client.sendall(d)
+                client.shutdown()
+                client.close()
             else:
                 #return bad request
                 pass
