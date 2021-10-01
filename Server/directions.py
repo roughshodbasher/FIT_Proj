@@ -199,7 +199,9 @@ class Travelling:
         data["start"][1] = float(data["start"][1])
 
         data["destinations"] = data["destinations"].split("lat\/lng")
-        del data["destinations"][0]
+        data["destinations"] = data["destinations"].split(",")
+
+        #del data["destinations"][0]
         for i in range(len(data["destinations"])):
             data["destinations"][i] = data["destinations"][i][
                                       data["destinations"][i].find("(") + 1:data["destinations"][i].find(")")]

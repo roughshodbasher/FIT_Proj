@@ -120,7 +120,7 @@ if __name__ == "__main__":
             data = data[data.find(b'{'):]
             print(data)
             data = json.loads(data.decode())
-            if data['requestType'] == 'directions':
+            if data['type'] == 0:
                 #directions
                 atDestination = False
                 r = directions.Travelling((data['data']))
