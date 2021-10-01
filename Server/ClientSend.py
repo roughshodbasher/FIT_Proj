@@ -12,7 +12,7 @@ def sendMessage(info={},raw=False):
         s = socket.socket()
         dataSize = 1024
         s.connect((ip, port))
-        s.sendall(b'\x00\x9c{"requestType":"directions","data":{"start":"lat\\/lng: (-37.810108,144.9582684)","destinations":"[lat\\/lng: (-37.8174907,144.9545615)]","vehicle":"ABC123"}}')
+        s.sendall(b'\x00\x9c{"type": 0, requestType":"directions","data":{"start":"lat\\/lng: (-37.810108,144.9582684)","destinations":"[lat\\/lng: (-37.8174907,144.9545615)]","vehicle":"ABC123"}}')
         print(s.recv(1024))
         return
     data = json.dumps(info)

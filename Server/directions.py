@@ -200,6 +200,7 @@ class Travelling:
         data["start"][1] = float(data["start"][1])
 
         data["destinations"] = data["destinations"].split("")
+        del data["destinations"][0]
         # data["destinations"] = ast.literal_eval(data["destinations"][0])[0]
         # data["destinations"] = data["destinations"].split(",")
 
