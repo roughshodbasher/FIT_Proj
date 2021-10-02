@@ -441,7 +441,7 @@ def get_trip(data):
         start_d = data["start"]
         end_d = data["end"]
         # select trips that are greater than or equal to the start date and less than or equal to the end date
-        query = "select * from fitproj.Trips where date >= %s and date <= %s;"
+        query = "select * from fitproj.Trips where date >= %s and date <= %s order by date;"
 
         param = (start_d, end_d, )
 
