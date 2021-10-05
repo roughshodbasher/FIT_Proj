@@ -144,7 +144,7 @@ if __name__ == "__main__":
                         client.sendall(json.dumps({"action": 0}))
                         #send new route data too
 
-            elif data['requestType'] == 'database':
+            elif data['type'] == 1:
                 d = db.get_trip(data['data'])
                 client.sendall(d)
                 client.shutdown()
