@@ -105,7 +105,8 @@ def get_vehicle_info(rego):
         cursor = con.cursor()
 
         # query: select from db, information about the vehicle
-        query = "select * from fitproj.Vehicle where registration = %s"
+        query = "select * from fitproj.Vehicle v join fitproj.VehicleType t on v.veh_type_id = t.veh_id where registration = %s"
+
 
         param = (rego, )
         # execute query
@@ -226,7 +227,10 @@ def add_trip(data):
             end = data["end"]
             dist = data["distance"]
             date = data["date"]
-            total_emi = data["total_emission"]
+
+            # get the emission information for the vehicle, and calculate the total emission from the trip
+            vehicle = json.loads(get_vehicle_info(data["veh_reg"]))
+            total_emi = dist * vehicle["message"][0]["emissions"]
 
             cursor = con.cursor()
             query = "insert into fitproj.Trips (user_id, veh_reg, start, end, dist, date, total_emi) values " \
@@ -437,7 +441,7 @@ def get_trip(data):
         start_d = data["start"]
         end_d = data["end"]
         # select trips that are greater than or equal to the start date and less than or equal to the end date
-        query = "select * from fitproj.Trips where date >= %s and date <= %s;"
+        query = "select * from fitproj.Trips where date >= %s and date <= %s order by date;"
 
         param = (start_d, end_d, )
 
