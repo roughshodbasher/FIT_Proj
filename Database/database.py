@@ -79,7 +79,7 @@ if __name__ == "__main__":
     dbcursor.execute(" CREATE TABLE Vehicle (
                     registration VARCHAR(7) PRIMARY KEY,
                     vin VARCHAR(17),
-                    veh_type_id int FOREIGN KEY
+                    veh_type_id int FOREIGN KEY REFERENCES VehicleType(veh_id)
                         )" 
                     )
     
