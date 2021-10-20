@@ -10,7 +10,8 @@ def boot(basePort):
     return s
 
 if __name__ == "__main__":
-    mainSock = boot(1024)
+    port = 1024
+    mainSock = boot(port)
     mainSock.listen(5)
     while True:
         client, addr_init = mainSock.accept()

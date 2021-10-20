@@ -522,3 +522,7 @@ def login(data):
     # else, immediate return the error message
     else:
         return json.dumps(con)
+
+
+if __name__  == '__main__':
+    print(get_all_vehicle())
